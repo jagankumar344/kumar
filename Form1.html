@@ -42,12 +42,12 @@
         /* Form control styling */
         .form-control {
             text-align: left;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
         }
         /* Label styling */
         .form-control label {
             display: block;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             color: #333;
         }
         /* Input styling */
@@ -71,13 +71,13 @@
             border: 1px solid #ce360b;
             border-radius: 30px;
             font-family: inherit;
-            font-size: 9px;
+            font-size: 11px;
             display: block;
             width: 50%;
             margin-top:9px;
             margin-bottom: 20px;
             color: #fff;
-            padding: 10px 20px;
+            padding: 10px 10px;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
@@ -140,10 +140,10 @@
                             code: "userdetails",
                             data: {
                                 
-                                firstname: firstname,
-                                lastname: lastname,
-                                phone: mobile,
-                                email: email
+                                firstname: $("#first-name").val(),
+                                lastname: $("#last-name").val(),
+                                phone: $("#phone").val(),
+                                email:$("#email").val()
                             }
                         }
                     })
