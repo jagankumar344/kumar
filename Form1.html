@@ -31,11 +31,11 @@
         /* Form styling */
         form {
             background-color: rgba(255, 255, 255, 0.8);
-            width: 230px; /* Width of the form */
-            height: 236px; /* Height of the form */
+            width: 281px; /* Width of the form */
+            height: 253px; /* Height of the form */
             margin: 20px; /* Margin around the form */
             padding: 16px 16px; /* Padding inside the form */
-            box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.3);
+            box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
             border-radius: 16px;
             align-self: flex-start;
         }
@@ -65,13 +65,12 @@
             font-size: 10px;
         }
         /* Button styling */
-        
         button {
             background-color: #ce360b;
             border: 1px solid #ce360b;
             border-radius: 13px;
             font-family: inherit;
-            font-size: 12px;
+            font-size: 14px;
             display: block;
             width: 47%;
             margin-top:9px;
@@ -96,31 +95,39 @@
     <!-- Form -->
     <form id="form">
         <div class="form-control">
-            <label style="color: black; font-weight: bold;">Fill the details below</label>
+           <label style="color: black; font-weight: 00; font-family: 'Open Sans', sans-serif; font-size: 17px; line-height: 20px;">Fill the details below</label>
+
         </div>
         <!-- First Name -->
+        
+          
+
         <div style="display: flex; justify-content: space-between;">
             <!-- First Name -->
             <div class="form-control" style="width: 48%;">
-                <input type="text" id="first-name" name="first-name" placeholder="First Name" style="width: 79%; border-radius: 8px;" />
+                <input type="text" id="first-name" name="first-name" placeholder="First Name" style="width: 79%;height: 15px; border-radius: 8px;font-size: 12px;" />
             </div>
             <!-- Last Name -->
             <div class="form-control" style="width: 48%;">
-                <input type="text" id="last-name" name="last-name" placeholder="Last Name" style="width: 80%; border-radius: 8px;" />
+                <input type="text" id="last-name" name="last-name" placeholder="Last Name" style="width: 83%;height: 15px; border-radius: 8px;font-size: 12px;" />
             </div>
         </div>
         <!-- Email -->
+        
         <div class="form-control">
-            <input type="email" id="email" name="email" placeholder="Email" style="width: 209px;border-radius: 8px;" />
+            <input type="email" id="email" name="email"; placeholder="Email" style="width: 258px;height: 15px;border-radius: 8px;font-size: 12px;" />
         </div>
         <!-- Phone Number -->
+       
+
         <div class="form-control">
-            <input type="tel" id="phone" name="phone" placeholder="Mobile No." style="width: 209px;border-radius: 8px;" />
-        </div>
+    <input type="tel" id="phone" name="phone" placeholder="Mobile No." style="width: 258px; height: 15px; border-radius: 8px; font-size: 12px;" />
+</div>
+
         <!-- Buttons -->
         <div style="display: flex; justify-content: space-between;">
-            <button type="button" id="cancel-btn">Cancel</button>
-            <button type="button" id="submit-btn">Submit</button>
+            <button type="button"style="width: 45%;height: px; border-radius: 12px;" id="cancel-btn">Cancel</button>
+            <button type="button"style="width: 49%;height: px; border-radius: 12px;" id="submit-btn">Submit</button>
         </div>
         <!-- Submission message -->
         <div class="submission-message" style="display: none;">Thank you for your submission!</div>
@@ -178,7 +185,7 @@
 
             // Cancel button click event
             $("#cancel-btn").click(function () {
-                alert("Going back");
+                $("#form").html("<div class='submission-message'>Going Back!</div>");
             });
         });
     </script>
