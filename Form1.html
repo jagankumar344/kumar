@@ -31,12 +31,12 @@
         /* Form styling */
         form {
             background-color: rgba(255, 255, 255, 0.8);
-            width: 200px; /* Width of the form */
-            height: 400px; /* Height of the form */
+            width: 230px; /* Width of the form */
+            height: 236px; /* Height of the form */
             margin: 20px; /* Margin around the form */
-            padding: 30px 20px; /* Padding inside the form */
-            box-shadow: 2px 5px 10px rgba(0, 0, 0, 0.5);
-            border-radius: 10px;
+            padding: 16px 16px; /* Padding inside the form */
+            box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
             align-self: flex-start;
         }
         /* Form control styling */
@@ -69,15 +69,15 @@
         button {
             background-color: #ce360b;
             border: 1px solid #ce360b;
-            border-radius: 30px;
+            border-radius: 13px;
             font-family: inherit;
-            font-size: 11px;
+            font-size: 12px;
             display: block;
-            width: 50%;
+            width: 47%;
             margin-top:9px;
             margin-bottom: 20px;
             color: #fff;
-            padding: 10px 10px;
+            padding: 08px 10px;
             cursor: pointer;
             transition: background-color 0.3s ease;
         }
@@ -95,36 +95,45 @@
     <!-- Form -->
     <form id="form">
         <div class="form-control">
-    <label for="first-name" style="color: navy; font-weight: bold;">Contact Information</label>
+    <label style="color: black; font-weight: bold;">Fill the details below</label>
 </div>
         <!-- First Name -->
+        <div style="display: flex; justify-content: space-between;">
+    <!-- First Name -->
+    <div class="form-control" style="width: 48%;">
+        <!--<label for="first-name"></label>-->
+        <input type="text" id="first-name" name="first-name" placeholder="First Name" style="width: 79%; border-radius: 8px;" />
+    </div>
+    <!-- Last Name -->
+    <div class="form-control" style="width: 48%;">
+        <!--<label for="last-name"></label>-->
+        <input type="text" id="last-name" name="last-name" placeholder="Last Name" style="width: 80%; border-radius: 8px;" />
+    </div>
+</div>
+        <!-- Email -->
         <div class="form-control">
-            <label for="first-name">First Name</label>
-            <input type="text" id="first-name" name="first-name" placeholder="Enter your first name" />
-        </div>
-        <!-- Last Name -->
-        <div class="form-control">
-            <label for="last-name">Last Name</label>
-            <input type="text" id="last-name" name="last-name" placeholder="Enter your last name" />
+         
+            <input type="email" id="email" name="email" placeholder="Email" style="width: 209px;border-radius: 8px;" />
         </div>
         <!-- Phone Number -->
         <div class="form-control">
-            <label for="phone">Phone Number</label>
-            <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" />
+            <!--<label for="phone"></label>-->
+            <input type="tel" id="phone" name="phone" placeholder="Mobile No."style="width: 209px;border-radius: 8px;" />
         </div>
-        <!-- Email -->
-        <div class="form-control">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" placeholder="Enter your email address" />
-        </div>
+        
         <!-- Submit Button -->
-        <button type="button" id="submit-btn">Submit</button>
+       
+        <div style="display: flex; justify-content: space-between;">
+            <button type="button" id="cancel-btn">Cancel</button>
+            <button type="button" id="submit-btn">Submit</button>
+        </div>
     </form>
 
     <!-- jQuery CDN -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
         $(function () {
+            
             $("#submit-btn").click(function () {
                 // Retrieve form data
                 
@@ -148,6 +157,9 @@
                         }
                     })
                 }), '*');
+                // Hide cancel button
+                $("#cancel-btn").fadeOut("slow");
+                
                 // Fade out the form and append thank you message
                 $(this).fadeOut("slow", function () {
                     var message = "<div class='submission-message'>Thank you for your submission!</div>";
@@ -155,7 +167,7 @@
                     $('.submission-message').css({
                         'color': 'black',
                         'text-align': 'center',
-                        'margin-top': '20px' // Adjust as needed
+                        'margin-top': '0px' // Adjust as needed
                     });
                 });
             });
