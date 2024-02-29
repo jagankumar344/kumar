@@ -84,63 +84,75 @@
         button:hover {
             background-color: #142651;
         }
+        /* Submission message styling */
+        .submission-message {
+            color: black;
+            text-align: center;
+            margin-top: 0px; /* Adjust as needed */
+        }
     </style>
 </head>
 <body>
-    <!-- Header -->
-    <!--<header>-->
-    <!--    <h1>Contact Information</h1>-->
-    <!--</header>-->
-
     <!-- Form -->
     <form id="form">
         <div class="form-control">
-    <label style="color: black; font-weight: bold;">Fill the details below</label>
-</div>
+            <label style="color: black; font-weight: bold;">Fill the details below</label>
+        </div>
         <!-- First Name -->
         <div style="display: flex; justify-content: space-between;">
-    <!-- First Name -->
-    <div class="form-control" style="width: 48%;">
-        <!--<label for="first-name"></label>-->
-        <input type="text" id="first-name" name="first-name" placeholder="First Name" style="width: 79%; border-radius: 8px;" />
-    </div>
-    <!-- Last Name -->
-    <div class="form-control" style="width: 48%;">
-        <!--<label for="last-name"></label>-->
-        <input type="text" id="last-name" name="last-name" placeholder="Last Name" style="width: 80%; border-radius: 8px;" />
-    </div>
-</div>
+            <!-- First Name -->
+            <div class="form-control" style="width: 48%;">
+                <input type="text" id="first-name" name="first-name" placeholder="First Name" style="width: 79%; border-radius: 8px;" />
+            </div>
+            <!-- Last Name -->
+            <div class="form-control" style="width: 48%;">
+                <input type="text" id="last-name" name="last-name" placeholder="Last Name" style="width: 80%; border-radius: 8px;" />
+            </div>
+        </div>
         <!-- Email -->
         <div class="form-control">
-         
             <input type="email" id="email" name="email" placeholder="Email" style="width: 209px;border-radius: 8px;" />
         </div>
         <!-- Phone Number -->
         <div class="form-control">
-            <!--<label for="phone"></label>-->
-            <input type="tel" id="phone" name="phone" placeholder="Mobile No."style="width: 209px;border-radius: 8px;" />
+            <input type="tel" id="phone" name="phone" placeholder="Mobile No." style="width: 209px;border-radius: 8px;" />
         </div>
-        
-        <!-- Submit Button -->
-       
+        <!-- Buttons -->
         <div style="display: flex; justify-content: space-between;">
             <button type="button" id="cancel-btn">Cancel</button>
             <button type="button" id="submit-btn">Submit</button>
         </div>
+        <!-- Submission message -->
+        <div class="submission-message" style="display: none;">Thank you for your submission!</div>
     </form>
 
     <!-- jQuery CDN -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
         $(function () {
-            
             $("#submit-btn").click(function () {
                 // Retrieve form data
-                
-                var firstname = $("#first-name").val();
-                var lastname = $("#last-name").val();
-                var mobile = $("#phone").val();
-                var email = $("#email").val();
+                var firstName = $("#first-name").val().trim();
+                var lastName = $("#last-name").val().trim();
+                var email = $("#email").val().trim();
+                var phone = $("#phone").val().trim();
+                // Validate input fields
+                if (firstName === '' || lastName === '' || email === '' || phone === '') {
+                    alert('Please fill in all fields.');
+                    return;
+                }
+                // Validate email format
+                var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(email)) {
+                    alert('Please enter a valid email address.');
+                    return;
+                }
+                // Validate phone number format (simple validation)
+                var phonePattern = /^[0-9]{10}$/;
+                if (!phonePattern.test(phone)) {
+                    alert('Please enter a valid phone number.');
+                    return;
+                }
                 // Send form data via postMessage
                 window.parent.postMessage(JSON.stringify({
                     event_code: 'ym-client-event',
@@ -148,28 +160,25 @@
                         event: {
                             code: "userdetails",
                             data: {
-                                
-                                firstname: $("#first-name").val(),
-                                lastname: $("#last-name").val(),
-                                phone: $("#phone").val(),
-                                email:$("#email").val()
+                                firstname: firstName,
+                                lastname: lastName,
+                                phone: phone,
+                                email: email
                             }
                         }
                     })
                 }), '*');
                 // Hide cancel button
                 $("#cancel-btn").fadeOut("slow");
-                
                 // Fade out the form and append thank you message
-                $(this).fadeOut("slow", function () {
-                    var message = "<div class='submission-message'>Thank you for your submission!</div>";
-                    $(this).parent().append(message);
-                    $('.submission-message').css({
-                        'color': 'black',
-                        'text-align': 'center',
-                        'margin-top': '0px' // Adjust as needed
-                    });
+                $("#submit-btn").fadeOut("slow", function () {
+                    $(".submission-message").fadeIn("slow");
                 });
+            });
+
+            // Cancel button click event
+            $("#cancel-btn").click(function () {
+                alert("Going back");
             });
         });
     </script>
