@@ -10,7 +10,7 @@
         body {
             background: #fff;
             color: #fff;
-            font-family: Verdana;
+            font-family: Roboto, sans-serif;
             text-align: left;
             margin: 0;
             padding: 0;
@@ -31,7 +31,7 @@
         /* Form styling */
         form {
             background-color: rgba(255, 255, 255, 0.8);
-            width: 281px; /* Width of the form */
+            width: 271px; /* Width of the form */
             height: 253px; /* Height of the form */
             margin: 1px; /* Margin around the form */
             padding: 16px 16px; /* Padding inside the form */
@@ -67,7 +67,7 @@
         /* Button styling */
         button {
             background-color: #ce360b;
-            border: 1px solid #ce360b;
+            border: 0.0px solid #ce360b;
             border-radius: 13px;
             font-family: inherit;
             font-size: 14px;
@@ -95,7 +95,7 @@
     <!-- Form -->
     <form id="form">
         <div class="form-control">
-           <label style="color: black; font-weight: 00; font-family: 'Open Sans', sans-serif; font-size: 17px; line-height: 20px;">Fill the details below</label>
+           <label style="color: black; font-weight: bold;Roboto, sans-serif; font-size: 17px; line-height: 22px;">Contact Information</label>
 
         </div>
         <!-- First Name -->
@@ -105,32 +105,32 @@
         <div style="display: flex; justify-content: space-between;">
             <!-- First Name -->
             <div class="form-control" style="width: 48%;">
-                <input type="text" id="first-name" name="first-name" placeholder="First Name" style="width: 79%;height: 15px; border-radius: 8px;font-size: 12px;" />
+                <input type="text" id="first-name" name="first-name" placeholder="First Name" style="width: 79%;height: 15px; border-radius: 8px;font-size: 13px;" />
             </div>
             <!-- Last Name -->
             <div class="form-control" style="width: 48%;">
-                <input type="text" id="last-name" name="last-name" placeholder="Last Name" style="width: 83%;height: 15px; border-radius: 8px;font-size: 12px;" />
+                <input type="text" id="last-name" name="last-name" placeholder="Last Name" style="width: 83%;height: 15px; border-radius: 8px;font-size: 13px;" />
             </div>
         </div>
         <!-- Email -->
         
         <div class="form-control">
-            <input type="email" id="email" name="email"; placeholder="Email" style="width: 258px;height: 15px;border-radius: 8px;font-size: 12px;" />
+            <input type="email" id="email" name="email"; placeholder="Email" style="width: 249px;height: 15px;border-radius: 8px;font-size: 13px;" />
         </div>
         <!-- Phone Number -->
        
 
         <div class="form-control">
-    <input type="tel" id="phone" name="phone" placeholder="Mobile No." style="width: 258px; height: 15px; border-radius: 8px; font-size: 12px;" />
+    <input type="tel" id="phone" name="phone" placeholder="Phone Number" style="width: 249px; height: 15px; border-radius: 8px; font-size: 13px;" />
 </div>
 
         <!-- Buttons -->
-        <div style="display: flex; justify-content: space-between;">
-            <button type="button"style="width: 45%;height: px; border-radius: 12px;" id="cancel-btn">Cancel</button>
-            <button type="button"style="width: 49%;height: px; border-radius: 12px;" id="submit-btn">Submit</button>
-        </div>
+        <div style="display: flex; justify-content: flex-end;">
+    <button type="button" style="width: 34%;height: px; border-radius: 12px;" id="submit-btn">Proceed</button>
+</div>
+
         <!-- Submission message -->
-        <div class="submission-message" style="display: none;">Thank you for your submission!</div>
+        <div class="submission-message" style="display: none;"></div>
     </form>
 
     <!-- jQuery CDN -->
@@ -155,8 +155,8 @@
                     return;
                 }
                 // Validate phone number format (simple validation)
-                var phonePattern = /^[0-9]{10}$/;
-                if (!phonePattern.test(phone)) {
+var phonePattern = /^(\d{3}-\d{3}-\d{4}|\d{3}\.\d{3}\.\d{4}|\(\d{3}\) \d{3} \d{4}|\d{10})$/;
+if (!phonePattern.test(phone)) {
                     alert('Please enter a valid phone number.');
                     return;
                 }
