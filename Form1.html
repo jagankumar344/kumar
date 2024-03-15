@@ -145,6 +145,17 @@
                     alert('Please fill in all fields.');
                     return;
                 }
+                 // Validate first name format (simple validation)
+            var namePattern = /^[A-Za-z]{3,}(?:['\- ][A-Za-z]+)*$/;
+            if (!namePattern.test(firstName)) {
+                alert('Please enter a valid first name.');
+                return;
+            }
+            // Validate last name format (simple validation)
+            if (!namePattern.test(lastName)) {
+                alert('Please enter a valid last name.');
+                return;
+            }
                 // Validate email format
                 var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailPattern.test(email)) {
