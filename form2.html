@@ -100,28 +100,28 @@
     <!-- Form -->
     <form id="form">
         <div class="form-control">
-            <label>Service Address</label>
+            <label>Contact Information</label>
         </div>
 
-        
-        <!-- Address -->
-        <div class="form-control">
-            <input type="text" id="address" name="address" placeholder="Address" style="width: 249px;height: 15px;border-radius: 8px;font-size: 13px;" />
-        </div>
-        <!-- City -->
-        <div class="form-control">
-            <input type="text" id="city" name="city" placeholder="City" style="width: 249px; height: 15px; border-radius: 8px; font-size: 13px;" />
-        </div>
         <div style="display: flex; justify-content: space-between;">
-            <!-- State -->
-            <div class="form-control" style="width: 48%;">
-                <input type="text" id="state" name="state" placeholder="State" style="width: 79%;height: 15px; border-radius: 8px; font-size: 13px; font-family: 'Gotham Rounded', sans-serif;" />
-            </div>
-            <!-- ZIP -->
-            <div class="form-control" style="width: 48%;">
-                <input type="text" id="zip-code" name="zip-code" placeholder="ZIP/Postal code" style="width: 83%;height: 15px; border-radius: 8px;font-size: 13px;" />
+            <!-- First Name -->
+             <div class="form-control" style="width: 48%;">
+    <input type="text" id="first-name" name="first-name" placeholder="First Name" style="width: 79%;height: 15px; border-radius: 8px; font-size: 13px; font-family: 'Gotham Rounded', sans-serif;" />
+</div>
+            <!-- Last Name -->
+           <div class="form-control" style="width: 48%;">
+                <input type="text" id="last-name" name="last-name" placeholder="Last Name" style="width: 83%;height: 15px; border-radius: 8px;font-size: 13px;" />
             </div>
         </div>
+        <!-- Email -->
+       <div class="form-control">
+            <input type="email" id="email" name="email"; placeholder="Email" style="width: 249px;height: 15px;border-radius: 8px;font-size: 13px;" />
+        </div>
+        <!-- Phone Number -->
+       <div class="form-control">
+    <input type="tel" id="phone" name="phone" placeholder="Phone Number" style="width: 249px; height: 15px; border-radius: 8px; font-size: 13px;" />
+</div>
+
         <!-- Buttons -->
         <div style="display: flex; justify-content: flex-end;">
             <button type="button" id="submit-btn">Proceed</button>
@@ -136,37 +136,50 @@
         $(function () {
             $("#submit-btn").click(function () {
                 // Retrieve form data
-                var address = $("#address").val().trim();
-                var city = $("#city").val().trim();
-                var state = $("#state").val().trim();
-                var zipCode = $("#zip-code").val().trim();
-                
-                // Validate input fields
-                if (address === '' || city === '' || state === '' || zipCode === '') {
-                    alert('Please fill in all fields.');
-                    return;
-                }
-                
-                // Proceed with form submission
-                submitForm(address, city, state, zipCode);
-                
-                // Hide the form
-                $("#form").hide();
-            });
-
-            // Function to submit form data
-            function submitForm(address, city, state, zipCode) {
                 var firstName = $("#first-name").val().trim();
                 var lastName = $("#last-name").val().trim();
                 var email = $("#email").val().trim();
                 var phone = $("#phone").val().trim();
-                
-                // Validate email and phone fields
-                // ...
-
+                // Validate input fields
+                if (firstName === '' || lastName === '' || email === '' || phone === '') {
+                    alert('Please fill in all fields.');
+                    return;
+                }
+                // Validate email format
+                var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!emailPattern.test(email)) {
+                    alert('Please enter a valid email address.');
+                    return;
+                }
+                // Validate phone number format (simple validation)
+                var phonePattern = /^(\d{3}-\d{3}-\d{4}|\d{3}\.\d{3}\.\d{4}|\(\d{3}\) \d{3} \d{4}|\d{10})$/;
+                if (!phonePattern.test(phone)) {
+                    alert('Please enter a valid phone number.');
+                    return;
+                }
                 // Send form data via postMessage
-                // ...
+               var targetOrigin = 'https://www.mrappliance.com/'; // Replace this with your target origin
+window.parent.postMessage(JSON.stringify({
+    event_code: 'ym-client-event',
+    data: JSON.stringify({
+        event: {
+            code: "userdetails",
+            data: {
+                firstname: firstName,
+                lastname: lastName,
+                phone: phone,
+                email: email
             }
+        }
+    })
+}), targetOrigin);
+                // Hide cancel button
+                $("#cancel-btn").fadeOut("slow");
+                // Fade out the form and append thank you message
+                $("#submit-btn").fadeOut("slow", function () {
+                    $(".submission-message").fadeIn("slow");
+                });
+            });
 
             // Cancel button click event
             $("#cancel-btn").click(function () {
