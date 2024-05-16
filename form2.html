@@ -45,6 +45,7 @@
         .form-control {
             text-align: left;
             margin-bottom: 20px;
+            color: black !important;
         }
         /* Label styling */
         .form-control label {
@@ -120,20 +121,20 @@ input:-webkit-autofill {
         <div style="display: flex; justify-content: space-between;">
             <!-- First Name -->
              <div class="form-control" style="width: 48%;">
-    <input type="text" id="first-name" name="first-name"  placeholder="First Name" style="width: 79%;height: 15px; border-radius: 8px; font-size: 13px; font-family: 'Gotham Rounded', sans-serif;" />
+    <input type="text" id="first-name" name="first-name" placeholder="First Name" style="width: 79%;height: 15px; border-radius: 8px; font-size: 13px; font-family: 'Gotham Rounded', sans-serif;" autocomplete="off" />
 </div>
             <!-- Last Name -->
            <div class="form-control" style="width: 48%;">
-                <input type="text" id="last-name" name="last-name"  placeholder="Last Name" style="width: 83%;height: 15px; border-radius: 8px;font-size: 13px;" />
+                <input type="text" id="last-name" name="last-name" placeholder="Last Name" style="width: 83%;height: 15px; border-radius: 8px;font-size: 13px;" autocomplete="off"/>
             </div>
         </div>
         <!-- Email -->
        <div class="form-control">
-            <input type="email" id="email" name="email"  placeholder="Email" style="width: 249px;height: 15px;border-radius: 8px;font-size: 13px;" />
+            <input type="email" id="email" name="email" placeholder="Email" style="width: 249px;height: 15px;border-radius: 8px;font-size: 13px;" autocomplete="off"/>
         </div>
         <!-- Phone Number -->
        <div class="form-control">
-    <input type="tel" id="phone" name="phone"  placeholder="Phone Number" style="width: 249px; height: 15px; border-radius: 8px; font-size: 13px;" autocomplete="off" />
+    <input type="tel" id="phone" name="phone" placeholder="Phone Number" style="width: 249px; height: 15px; border-radius: 8px; font-size: 13px;" autocomplete="off" />
 </div>
 
         <!-- Buttons -->
@@ -144,11 +145,15 @@ input:-webkit-autofill {
         <div class="submission-message" style="display: none;"></div>
     </form>
 
-
-
     <!-- jQuery CDN -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
+    window.onload = function() {
+    var inputFields = document.querySelectorAll('input');
+    inputFields.forEach(function(input) {
+      input.setAttribute('autocomplete', 'off');
+    });
+  };
         $(function () {
             $("#submit-btn").click(function () {
                 // Retrieve form data
@@ -161,8 +166,6 @@ input:-webkit-autofill {
                     alert('Please fill in all fields.');
                     return;
                 }
-                 // Validate first name format (simple validation)
-            
                 // Validate email format
                 var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 if (!emailPattern.test(email)) {
@@ -175,6 +178,9 @@ input:-webkit-autofill {
                     alert('Please enter a valid phone number.');
                     return;
                 }
+                // Disable form fields after submission
+                $("input").prop('disabled', true);
+                $("button").prop('disabled', true);
                 // Send form data via postMessage
                 var targetOrigin = 'https://dig-www-nei-mra-stage.nblytest.com'; // Replace this with your target origin
 
