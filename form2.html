@@ -94,12 +94,16 @@
             text-align: center;
             margin-top: 0px;
         }
+         /* Autofill text color for all input fields in Edge */
+        @supports (-ms-ime-align:auto) {
+            input:-ms-input-placeholder {
+                color: black !important;
+            }
+        }
 input:-webkit-autofill {
     -webkit-text-fill-color: black !important;
 }
-input:-ms-input-placeholder {
-    color: black; /* Set default text color */
-}
+
     </style>
 </head>
 <body>
