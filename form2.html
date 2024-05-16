@@ -136,6 +136,18 @@ input:-ms-input-placeholder {
         <div class="submission-message" style="display: none;"></div>
     </form>
 
+<script>
+// Detect autofill and adjust text color
+document.getElementById('email').addEventListener('input', function() {
+    var input = this;
+    setTimeout(function() {
+        if (input.value) {
+            input.style.color = 'black'; // Set text color to black
+        }
+    }, 100);
+});
+</script>
+
     <!-- jQuery CDN -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script>
