@@ -94,9 +94,13 @@
             text-align: center;
             margin-top: 0px;
         }
-        /* Autofill text color for all input fields in Edge */
+      /* Autofill text color for all input fields in Edge */
 @supports (-ms-ime-align:auto) {
-    input {
+    input:-ms-input-placeholder,
+    input[type="first-name"]:-ms-input-placeholder,
+    input[type="email"]:-ms-input-placeholder,
+    input[type="Last Name"]:-ms-input-placeholder,
+    input[type="phone"]:-ms-input-placeholder {
         color: black !important;
     }
 }
