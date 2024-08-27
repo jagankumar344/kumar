@@ -1,207 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mr Appliance</title>
-    <!-- Link to Gotham Rounded font -->
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/gotham-fonts@1.0.3/css/gotham-rounded.min.css">
+    <title>Bot Form</title>
     <style>
-        /* Body styling */
         body {
-            background: #fff;
-            color: #fff;
-            font-family: 'Gotham Rounded', sans-serif; /* Apply Gotham Rounded font to all text */
-            text-align: left;
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
             margin: 0;
             padding: 0;
-            display: flex;
-            justify-content: flex-start;
-            align-items: flex-start;
-            min-height: 100vh;
-            flex-direction: column;
         }
-        /* Header styling */
-        header {
-            text-align: center;
-            padding: 20px 0;
-            background-color: #333;
-            color: #00f;
-            width: 100%;
+        .container {
+            max-width: 400px;
+            margin: 10px auto;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #fff;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        /* Form styling */
-        form {
-            background-color: rgba(255, 255, 255, 0.8);
-            width: 271px;
-            height: 253px;
-            margin: 0px;
-            padding: 16px 16px;
-            box-shadow: 1px 2px 5px rgba(0, 0, 0, 0.2);
-            border-radius: 16px;
-            align-self: flex-start;
-        }
-        /* Form control styling */
-        .form-control {
-            text-align: left;
-            margin-bottom: 20px;
-        }
-        /* Label styling */
-        .form-control label {
-            display: block;
+        .form-group {
             margin-bottom: 12px;
-            color: #0B2451; /* Set label color to #0B2451 */
-            font-weight: bold;
-            font-size: 17px;
-            line-height: 22px;
         }
-        /* Input styling */
-        .form-control input,
-        .form-control select,
-        .form-control textarea {
-            border: 1px solid #000;
-            border-radius: 2px;
-            font-family: inherit;
-            padding: 10px;
+        .form-group label {
             display: block;
-            width: calc(100% - 20px);
-            background-color: rgba(255, 255, 255, 0.5);
-            color: #333;
-            font-size: 13px;
-        }
-        /* Button styling */
-        button {
-            background-color: #ce360b;
-            border: 0.0px solid #ce360b;
-            border-radius: 14px;
-            font-family: inherit;
+            margin-bottom: 4px;
             font-size: 14px;
-            display: block;
-            width: 40%;
-            margin-top:9px;
-            margin-bottom: 20px;
-            color: #fff;
-            padding: 08px 10px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            box-sizing: border-box;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .required:after {
+            content: '*';
+            color: red;
+            margin-left: 4px;
+        }
+        .optional {
+            font-size: 0.8em;
+            color: #777;
+        }
+        .submit-button {
+            width: 100%;
+            padding: 12px;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 4px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            font-size: 16px;
         }
-        button:hover {
-            background-color: #142651;
-        }
-        /* Submission message styling */
-        .submission-message {
-            color: black;
-            text-align: center;
-            margin-top: 0px;
+        .submit-button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
 <body>
-    <!-- Form -->
-    <form id="form">
-        <div class="form-control">
-            <label>Contact Information</label>
-        </div>
-
-        <div style="display: flex; justify-content: space-between;">
-            <!-- First Name -->
-             <div class="form-control" style="width: 48%;">
-    <input type="text" id="first-name" name="first-name" placeholder="First Name" style="width: 79%;height: 15px; border-radius: 8px; font-size: 13px; font-family: 'Gotham Rounded', sans-serif;" />
-</div>
-            <!-- Last Name -->
-           <div class="form-control" style="width: 48%;">
-                <input type="text" id="last-name" name="last-name" placeholder="Last Name" style="width: 83%;height: 15px; border-radius: 8px;font-size: 13px;" />
+    <div class="container">
+        <h1 style="font-size: 18px; margin-bottom: 15px;">Invoice Form</h1>
+        <form action="/submit-form" method="post">
+            <div class="form-group">
+                <label for="invoiceNumber" class="required">Invoice Number</label>
+                <input type="text" id="invoiceNumber" name="invoiceNumber" required>
             </div>
-        </div>
-        <!-- Email -->
-       <div class="form-control">
-            <input type="email" id="email" name="email"; placeholder="Email" style="width: 249px;height: 15px;border-radius: 8px;font-size: 13px;" />
-        </div>
-        <!-- Phone Number -->
-       <div class="form-control">
-    <input type="tel" id="phone" name="phone" placeholder="Phone Number" style="width: 249px; height: 15px; border-radius: 8px; font-size: 13px;" />
-</div>
 
-        <!-- Buttons -->
-        <div style="display: flex; justify-content: flex-end;">
-            <button type="button" id="submit-btn">Proceed</button>
-        </div>
-        <!-- Submission message -->
-        <div class="submission-message" style="display: none;"></div>
-    </form>
+            <div class="form-group">
+                <label for="invoiceDate" class="required">Invoice Date</label>
+                <input type="date" id="invoiceDate" name="invoiceDate" required>
+            </div>
 
-    <!-- jQuery CDN -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-     <!-- Convert Experiments conversion tracking -->
-    <script type="text/javascript">
-        window._conv_q = window._conv_q || [];
-        _conv_q.push(["triggerConversion", "100454421"]);
-    </script>
-    <script>
-        $(function () {
-            $("#submit-btn").click(function () {
-                // Retrieve form data
-                var firstName = $("#first-name").val().trim();
-                var lastName = $("#last-name").val().trim();
-                var email = $("#email").val().trim();
-                var phone = $("#phone").val().trim();
-                // Validate input fields
-                if (firstName === '' || lastName === '' || email === '' || phone === '') {
-                    alert('Please fill in all fields.');
-                    return;
-                }
-                 // Validate first name format (simple validation)
-            var namePattern = /^[A-Za-z]{3,}(?:['\- ][A-Za-z]+)*$/;
-            if (!namePattern.test(firstName)) {
-                alert('Please enter a valid first name.');
-                return;
-            }
-            // Validate last name format (simple validation)
-            if (!namePattern.test(lastName)) {
-                alert('Please enter a valid last name.');
-                return;
-            }
-                // Validate email format
-                var emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-                if (!emailPattern.test(email)) {
-                    alert('Please enter a valid email address.');
-                    return;
-                }
-                // Validate phone number format (simple validation)
-                var phonePattern = /^(?!0{10})(?:\(\d{3}\)|\d{3})[-.\s]?\d{3}[-.\s]?\d{4}$/;
-                if (!phonePattern.test(phone)) {
-                    alert('Please enter a valid phone number.');
-                    return;
-                }
-                // Send form data via postMessage
-                window.parent.postMessage(JSON.stringify({
-                    event_code: 'ym-client-event',
-                    data: JSON.stringify({
-                        event: {
-                            code: "userdetails",
-                            data: {
-                                firstname: firstName,
-                                lastname: lastName,
-                                phone: phone,
-                                email: email
-                            }
-                        }
-                    })
-                }), '*');
-                // Hide cancel button
-                $("#cancel-btn").fadeOut("slow");
-                // Fade out the form and append thank you message
-                $("#submit-btn").fadeOut("slow", function () {
-                    $(".submission-message").fadeIn("slow");
-                });
-            });
+            <div class="form-group">
+                <label for="vendorNumber" class="required">Vendor Number</label>
+                <input type="text" id="vendorNumber" name="vendorNumber" required>
+            </div>
 
-            // Cancel button click event
-            $("#cancel-btn").click(function () {
-                $("#form").html("<div class='submission-message'>Going Back!</div>");
-            });
-        });
-    </script>
+            <div class="form-group">
+                <label for="poNumber" class="optional">PO Number (optional)</label>
+                <input type="text" id="poNumber" name="poNumber">
+            </div>
+
+            <button type="submit" class="submit-button">Submit</button>
+        </form>
+    </div>
 </body>
 </html>
