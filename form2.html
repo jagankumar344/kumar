@@ -58,12 +58,18 @@
         .submit-button:hover {
             background-color: #0056b3;
         }
+        .submission-message {
+            display: none;
+            color: black;
+            text-align: center;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 style="font-size: 18px; margin-bottom: 15px;">Invoice Form</h1>
-        <form action="/submit-form" method="post">
+        <form id="invoiceForm">
             <div class="form-group">
                 <label for="invoiceNumber" class="required">Invoice Number</label>
                 <input type="text" id="invoiceNumber" name="invoiceNumber" required>
@@ -84,8 +90,60 @@
                 <input type="text" id="poNumber" name="poNumber">
             </div>
 
-            <button type="submit" class="submit-button">Submit</button>
+            <button type="button" class="submit-button" id="submit-btn">Submit</button>
         </form>
+        <div class="submission-message">Thank you for your submission!</div>
     </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script>
+        $(function() {
+            $("#submit-btn").click(function() {
+                // Retrieve form data
+                var invoiceNumber = $("#invoiceNumber").val().trim();
+                var invoiceDate = $("#invoiceDate").val().trim();
+                var vendorNumber = $("#vendorNumber").val().trim();
+                var poNumber = $("#poNumber").val().trim();
+
+                // Validate required fields
+                if (invoiceNumber === '' || invoiceDate === '' || vendorNumber === '') {
+                    alert('Please fill in all required fields.');
+                    return;
+                }
+
+                // Simple validation for Invoice and Vendor Numbers (assuming they are alphanumeric)
+                var numberPattern = /^[a-zA-Z0-9]+$/;
+                if (!numberPattern.test(invoiceNumber)) {
+                    alert('Please enter a valid Invoice Number.');
+                    return;
+                }
+                if (!numberPattern.test(vendorNumber)) {
+                    alert('Please enter a valid Vendor Number.');
+                    return;
+                }
+
+                // Send form data via postMessage
+                window.parent.postMessage(JSON.stringify({
+                    event_code: 'ym-client-event',
+                    data: JSON.stringify({
+                        event: {
+                            code: "invoicedetails",
+                            data: {
+                                invoiceNumber: invoiceNumber,
+                                invoiceDate: invoiceDate,
+                                vendorNumber: vendorNumber,
+                                poNumber: poNumber
+                            }
+                        }
+                    })
+                }), '*');
+
+                // Fade out the form and show thank you message
+                $("#submit-btn").fadeOut("slow", function() {
+                    $(".submission-message").fadeIn("slow");
+                });
+            });
+        });
+    </script>
 </body>
 </html>
