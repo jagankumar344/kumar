@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DPA Form</title>
+    <title>Bot Form</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -12,25 +12,25 @@
             padding: 0;
         }
         .container {
-            max-width: 400px;
+            max-width: 300px; /* Reduced width by 25% */
             margin: 10px auto;
-            padding: 15px;
+            padding: 11px; /* Reduced padding by 25% */
             border: 1px solid #ddd;
             border-radius: 8px;
             background-color: #fff;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
         .form-group {
-            margin-bottom: 12px;
+            margin-bottom: 9px; /* Reduced spacing by 25% */
         }
         .form-group label {
             display: block;
-            margin-bottom: 4px;
+            margin-bottom: 3px; /* Reduced label spacing */
             font-size: 14px;
         }
         .form-group input {
             width: 100%;
-            padding: 10px;
+            padding: 7.5px; /* Reduced input padding */
             box-sizing: border-box;
             border: 1px solid #ddd;
             border-radius: 4px;
@@ -47,7 +47,7 @@
         }
         .submit-button {
             width: 100%;
-            padding: 12px;
+            padding: 9px; /* Reduced button size */
             background-color: #007BFF;
             color: white;
             border: none;
@@ -62,7 +62,7 @@
             display: none;
             color: black;
             text-align: center;
-            margin-top: 20px;
+            margin-top: 15px;
         }
     </style>
 </head>
@@ -99,11 +99,16 @@
     <script>
         $(function() {
             $("#submit-btn").click(function() {
-                // Retrieve form data
-                var invoiceNumber = $("#invoiceNumber").val().trim();
-                var invoiceDate = $("#invoiceDate").val().trim();
-                var vendorNumber = $("#vendorNumber").val().trim();
-                var poNumber = $("#poNumber").val().trim();
+                // Prevent Cross-Site Scripting (XSS) by escaping input
+                function sanitizeInput(input) {
+                    return $('<div/>').text(input).html();
+                }
+
+                // Retrieve and sanitize form data
+                var invoiceNumber = sanitizeInput($("#invoiceNumber").val().trim());
+                var invoiceDate = sanitizeInput($("#invoiceDate").val().trim());
+                var vendorNumber = sanitizeInput($("#vendorNumber").val().trim());
+                var poNumber = sanitizeInput($("#poNumber").val().trim());
 
                 // Validate required fields
                 if (invoiceNumber === '' || invoiceDate === '' || vendorNumber === '') {
@@ -122,7 +127,7 @@
                     return;
                 }
 
-                // Send form data via postMessage
+                // Send form data via postMessage (with sanitized input)
                 window.parent.postMessage(JSON.stringify({
                     event_code: 'ym-client-event',
                     data: JSON.stringify({
@@ -138,7 +143,7 @@
                     })
                 }), '*');
 
-                // Fade out the form and show thank you message
+                // Hide the form and show thank you message
                 $("#submit-btn").fadeOut("slow", function() {
                     $(".submission-message").fadeIn("slow");
                 });
