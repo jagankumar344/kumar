@@ -1,154 +1,532 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bot Form</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            margin: 0;
-            padding: 0;
-        }
-        .container {
-            max-width: 300px; /* Reduced width by 25% */
-            margin: 10px auto;
-            padding: 11px; /* Reduced padding by 25% */
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            background-color: #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        .form-group {
-            margin-bottom: 9px; /* Reduced spacing by 25% */
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 3px; /* Reduced label spacing */
-            font-size: 14px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 7.5px; /* Reduced input padding */
-            box-sizing: border-box;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        .required:after {
-            content: '*';
-            color: red;
-            margin-left: 4px;
-        }
-        .optional {
-            font-size: 0.8em;
-            color: #777;
-        }
-        .submit-button {
-            width: 100%;
-            padding: 9px; /* Reduced button size */
-            background-color: #007BFF;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .submit-button:hover {
-            background-color: #0056b3;
-        }
-        .submission-message {
-            display: none;
-            color: black;
-            text-align: center;
-            margin-top: 15px;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Invoice Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #050510;
+      --card: rgba(12, 12, 35, 0.82);
+      --border: rgba(120, 80, 255, 0.35);
+      --accent: #7c3aed;
+      --accent2: #06b6d4;
+      --accent3: #f472b6;
+      --text: #e2e8f0;
+      --muted: #94a3b8;
+      --input-bg: rgba(255,255,255,0.04);
+      --input-border: rgba(124, 58, 237, 0.3);
+      --radius: 14px;
+    }
+
+    body {
+      font-family: 'Syne', sans-serif;
+      background: var(--bg);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* ── ANIMATED BACKGROUND ── */
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    /* Animated mesh blobs */
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: 0.55;
+      animation: drift 12s ease-in-out infinite alternate;
+    }
+    .blob-1 { width: 520px; height: 520px; background: #7c3aed; top: -10%; left: -8%; animation-duration: 14s; }
+    .blob-2 { width: 400px; height: 400px; background: #06b6d4; bottom: -5%; right: -6%; animation-duration: 11s; animation-delay: -4s; }
+    .blob-3 { width: 300px; height: 300px; background: #f472b6; top: 40%; left: 55%; animation-duration: 9s; animation-delay: -7s; }
+    .blob-4 { width: 200px; height: 200px; background: #10b981; bottom: 15%; left: 20%; animation-duration: 16s; animation-delay: -2s; }
+
+    @keyframes drift {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(40px, -30px) scale(1.08); }
+      66%  { transform: translate(-25px, 45px) scale(0.95); }
+      100% { transform: translate(20px, 15px) scale(1.04); }
+    }
+
+    /* Floating particles */
+    .particles { position: absolute; inset: 0; }
+    .particle {
+      position: absolute;
+      width: 3px; height: 3px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 50%;
+      animation: float-up linear infinite;
+    }
+    @keyframes float-up {
+      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+      10%  { opacity: 1; }
+      90%  { opacity: 0.5; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+
+    /* Scanline overlay */
+    .scanlines {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 3px,
+        rgba(0,0,0,0.07) 3px,
+        rgba(0,0,0,0.07) 4px
+      );
+    }
+
+    /* Grid pattern */
+    .grid-overlay {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background-image:
+        linear-gradient(rgba(124,58,237,0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124,58,237,0.07) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* ── CARD ── */
+    .card-wrap {
+      position: relative; z-index: 10;
+      width: 100%; max-width: 420px;
+      padding: 16px;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 36px 32px 32px;
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      box-shadow:
+        0 0 0 1px rgba(124,58,237,0.12),
+        0 24px 64px rgba(0,0,0,0.55),
+        inset 0 1px 0 rgba(255,255,255,0.06);
+      animation: card-in 0.7s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    @keyframes card-in {
+      from { opacity: 0; transform: translateY(28px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Glowing top border */
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -1px; left: 20%; right: 20%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #7c3aed, #06b6d4, #f472b6, transparent);
+      border-radius: 2px;
+      animation: shimmer 3s ease infinite;
+    }
+    @keyframes shimmer {
+      0%,100% { opacity: 0.7; }
+      50%      { opacity: 1; }
+    }
+
+    /* Header */
+    .header { margin-bottom: 28px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(124,58,237,0.18);
+      border: 1px solid rgba(124,58,237,0.4);
+      color: #a78bfa;
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; letter-spacing: 0.12em;
+      padding: 4px 10px; border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .badge-dot {
+      width: 6px; height: 6px;
+      background: #7c3aed; border-radius: 50%;
+      animation: pulse-dot 1.6s ease infinite;
+    }
+    @keyframes pulse-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.4; transform: scale(0.7); }
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 26px; font-weight: 800;
+      color: var(--text);
+      line-height: 1.15;
+      letter-spacing: -0.02em;
+    }
+    h1 span {
+      background: linear-gradient(120deg, #a78bfa, #67e8f9, #f9a8d4);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .subtitle {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px; color: var(--muted);
+      margin-top: 6px; letter-spacing: 0.04em;
+    }
+
+    /* ── FORM ── */
+    .form-grid { display: flex; flex-direction: column; gap: 16px; }
+
+    .field { display: flex; flex-direction: column; gap: 6px; }
+
+    label {
+      font-size: 11px; font-weight: 600;
+      color: var(--muted); letter-spacing: 0.08em;
+      text-transform: uppercase;
+      display: flex; align-items: center; gap: 6px;
+    }
+    label .req { color: var(--accent3); font-size: 13px; }
+    label .opt {
+      font-size: 9px; color: rgba(148,163,184,0.55);
+      background: rgba(255,255,255,0.05);
+      padding: 1px 6px; border-radius: 10px;
+      font-weight: 400; letter-spacing: 0;
+    }
+
+    input, select {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 10px;
+      padding: 11px 14px;
+      font-family: 'Space Mono', monospace;
+      font-size: 13px; color: var(--text);
+      width: 100%; outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+      appearance: none; -webkit-appearance: none;
+    }
+    input::placeholder { color: rgba(148,163,184,0.4); }
+    input:focus, select:focus {
+      border-color: var(--accent);
+      background: rgba(124,58,237,0.08);
+      box-shadow: 0 0 0 3px rgba(124,58,237,0.18), 0 0 20px rgba(124,58,237,0.12);
+    }
+    input[type="date"]::-webkit-calendar-picker-indicator {
+      filter: invert(0.6) sepia(1) saturate(5) hue-rotate(220deg);
+      cursor: pointer;
+    }
+
+    /* Custom select wrapper */
+    .select-wrap { position: relative; }
+    .select-wrap select { padding-right: 38px; cursor: pointer; }
+    .select-wrap::after {
+      content: '▾';
+      position: absolute; right: 13px; top: 50%;
+      transform: translateY(-50%);
+      color: var(--accent); font-size: 14px;
+      pointer-events: none;
+    }
+    select option { background: #0f0f2e; color: var(--text); }
+
+    /* Row for two fields */
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    /* ── SUBMIT BUTTON ── */
+    .btn-wrap { margin-top: 8px; }
+    .submit-btn {
+      width: 100%; padding: 14px;
+      background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
+      color: #fff; border: none; border-radius: 12px;
+      font-family: 'Syne', sans-serif;
+      font-size: 15px; font-weight: 700; letter-spacing: 0.04em;
+      cursor: pointer; position: relative; overflow: hidden;
+      transition: transform 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 20px rgba(124,58,237,0.4);
+    }
+    .submit-btn::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 60%);
+      border-radius: inherit;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(124,58,237,0.55);
+    }
+    .submit-btn:active { transform: translateY(0); }
+
+    /* Ripple on click */
+    .submit-btn .ripple {
+      position: absolute; border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      transform: scale(0); animation: ripple 0.6s linear;
+      pointer-events: none;
+    }
+    @keyframes ripple {
+      to { transform: scale(4); opacity: 0; }
+    }
+
+    /* ── SUCCESS STATE ── */
+    .success {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 24px 0 8px;
+      text-align: center;
+    }
+    .success-icon {
+      width: 64px; height: 64px;
+      background: linear-gradient(135deg, #7c3aed, #06b6d4);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 28px;
+      box-shadow: 0 0 30px rgba(124,58,237,0.5);
+      animation: pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
+    }
+    @keyframes pop-in {
+      from { transform: scale(0); opacity: 0; }
+      to   { transform: scale(1); opacity: 1; }
+    }
+    .success h2 {
+      font-size: 20px; font-weight: 800; color: var(--text);
+    }
+    .success p {
+      font-family: 'Space Mono', monospace;
+      font-size: 11px; color: var(--muted);
+    }
+    .success-id {
+      font-family: 'Space Mono', monospace;
+      font-size: 10px; color: #a78bfa;
+      background: rgba(124,58,237,0.12);
+      border: 1px solid rgba(124,58,237,0.25);
+      padding: 6px 14px; border-radius: 20px;
+      letter-spacing: 0.1em;
+    }
+
+    /* ── DIVIDER ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent);
+      margin: 4px 0;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1 style="font-size: 18px; margin-bottom: 15px;">Invoice Form</h1>
-        <form id="invoiceForm">
-            <div class="form-group">
-                <label for="invoiceNumber" class="required">Invoice Number</label>
-                <input type="text" id="invoiceNumber" name="invoiceNumber" required>
-            </div>
 
-            <div class="form-group">
-                <label for="invoiceDate" class="required">Invoice Date</label>
-                <input type="date" id="invoiceDate" name="invoiceDate" required>
-            </div>
+<!-- ANIMATED BACKGROUND -->
+<div class="bg-canvas">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+  <div class="blob blob-4"></div>
+  <div class="particles" id="particles"></div>
+</div>
+<div class="grid-overlay"></div>
+<div class="scanlines"></div>
 
-            <div class="form-group">
-                <label for="vendorNumber" class="required">Vendor Number</label>
-                <input type="text" id="vendorNumber" name="vendorNumber" required>
-            </div>
-
-            <div class="form-group">
-                <label for="poNumber" class="optional">PO Number (optional)</label>
-                <input type="text" id="poNumber" name="poNumber">
-            </div>
-
-            <button type="button" class="submit-button" id="submit-btn">Submit</button>
-        </form>
-        <div class="submission-message">Thank you for your submission!</div>
+<!-- CARD -->
+<div class="card-wrap">
+  <div class="card">
+    <div class="header">
+      <div class="badge">
+        <span class="badge-dot"></span>
+        INVOICE PORTAL
+      </div>
+      <h1>Submit Your<br/><span>Invoice</span></h1>
+      <p class="subtitle">// Fill all required fields to proceed</p>
     </div>
 
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-    <script>
-        $(function() {
-            $("#submit-btn").click(function() {
-                // Prevent Cross-Site Scripting (XSS) by escaping input
-                function sanitizeInput(input) {
-                    return $('<div/>').text(input).html();
-                }
+    <div class="divider"></div>
 
-                // Retrieve and sanitize form data
-                var invoiceNumber = sanitizeInput($("#invoiceNumber").val().trim());
-                var invoiceDate = sanitizeInput($("#invoiceDate").val().trim());
-                var vendorNumber = sanitizeInput($("#vendorNumber").val().trim());
-                var poNumber = sanitizeInput($("#poNumber").val().trim());
+    <div id="form-section">
+      <div class="form-grid" style="margin-top:20px;">
 
-                // Validate required fields
-                if (invoiceNumber === '' || invoiceDate === '' || vendorNumber === '') {
-                    alert('Please fill in all required fields.');
-                    return;
-                }
+        <!-- Invoice Type (SELECT) -->
+        <div class="field">
+          <label>Invoice Type <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="invoiceType">
+              <option value="" disabled selected>Select type…</option>
+              <option value="standard">Standard Invoice</option>
+              <option value="proforma">Proforma Invoice</option>
+              <option value="credit">Credit Note</option>
+              <option value="debit">Debit Note</option>
+              <option value="recurring">Recurring Invoice</option>
+            </select>
+          </div>
+        </div>
 
-                // Simple validation for Invoice and Vendor Numbers (assuming they are alphanumeric)
-                var numberPattern = /^[a-zA-Z0-9]+$/;
-                if (!numberPattern.test(invoiceNumber)) {
-                    alert('Please enter a valid Invoice Number.');
-                    return;
-                }
-                if (!numberPattern.test(vendorNumber)) {
-                    alert('Please enter a valid Vendor Number.');
-                    return;
-                }
+        <!-- Invoice Number + Date row -->
+        <div class="row">
+          <div class="field">
+            <label>Invoice No. <span class="req">*</span></label>
+            <input type="text" id="invoiceNumber" placeholder="INV-0001"/>
+          </div>
+          <div class="field">
+            <label>Date <span class="req">*</span></label>
+            <input type="date" id="invoiceDate"/>
+          </div>
+        </div>
 
-                // Send form data via postMessage (with sanitized input)
-                window.parent.postMessage(JSON.stringify({
-                    event_code: 'ym-client-event',
-                    data: JSON.stringify({
-                        event: {
-                            code: "invoicedetails",
-                            data: {
-                                invoiceNumber: invoiceNumber,
-                                invoiceDate: invoiceDate,
-                                vendorNumber: vendorNumber,
-                                poNumber: poNumber
-                            }
-                        }
-                    })
-                }), '*');
+        <!-- Vendor Number -->
+        <div class="field">
+          <label>Vendor Number <span class="req">*</span></label>
+          <input type="text" id="vendorNumber" placeholder="VND-XXXXXX"/>
+        </div>
 
-                // Hide the form and show thank you message
-                $("#submit-btn").fadeOut("slow", function() {
-                    $(".submission-message").fadeIn("slow");
-                });
-            });
-        });
-    </script>
+        <!-- PO Number -->
+        <div class="field">
+          <label>PO Number <span class="opt">optional</span></label>
+          <input type="text" id="poNumber" placeholder="PO-XXXXXX"/>
+        </div>
+
+      </div>
+
+      <div class="btn-wrap" style="margin-top:24px;">
+        <button class="submit-btn" id="submitBtn">
+          Submit Invoice →
+        </button>
+      </div>
+    </div>
+
+    <!-- SUCCESS -->
+    <div class="success" id="successSection">
+      <div class="success-icon">✓</div>
+      <h2>Invoice Submitted!</h2>
+      <p>Your invoice has been received successfully.</p>
+      <div class="success-id" id="successId">REF: —</div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  /* ── Particles ── */
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 38; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random() * 100 + 'vw';
+    p.style.animationDuration = (6 + Math.random() * 14) + 's';
+    p.style.animationDelay = (-Math.random() * 18) + 's';
+    p.style.width = p.style.height = (Math.random() > 0.7 ? 4 : 2) + 'px';
+    p.style.opacity = 0.3 + Math.random() * 0.6;
+    container.appendChild(p);
+  }
+
+  /* ── Ripple effect ── */
+  document.getElementById('submitBtn').addEventListener('click', function(e) {
+    const btn = this;
+    const circle = document.createElement('span');
+    const diameter = Math.max(btn.clientWidth, btn.clientHeight);
+    const radius = diameter / 2;
+    const rect = btn.getBoundingClientRect();
+    circle.style.width = circle.style.height = diameter + 'px';
+    circle.style.left = (e.clientX - rect.left - radius) + 'px';
+    circle.style.top  = (e.clientY - rect.top  - radius) + 'px';
+    circle.className = 'ripple';
+    btn.appendChild(circle);
+    setTimeout(() => circle.remove(), 650);
+
+    handleSubmit();
+  });
+
+  function sanitize(val) {
+    const d = document.createElement('div');
+    d.textContent = val;
+    return d.innerHTML;
+  }
+
+  const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzj_PxPJWvUT101r8u04nUHgypqYHty4wPtpg5LN62p54A3SEHILF2gUKmPFy02KVw/exec';
+
+  async function handleSubmit() {
+    const invoiceType   = sanitize(document.getElementById('invoiceType').value.trim());
+    const invoiceNumber = sanitize(document.getElementById('invoiceNumber').value.trim());
+    const invoiceDate   = sanitize(document.getElementById('invoiceDate').value.trim());
+    const vendorNumber  = sanitize(document.getElementById('vendorNumber').value.trim());
+    const poNumber      = sanitize(document.getElementById('poNumber').value.trim());
+
+    if (!invoiceType || !invoiceNumber || !invoiceDate || !vendorNumber) {
+      shakeMissing([
+        !invoiceType   && 'invoiceType',
+        !invoiceNumber && 'invoiceNumber',
+        !invoiceDate   && 'invoiceDate',
+        !vendorNumber  && 'vendorNumber',
+      ].filter(Boolean));
+      return;
+    }
+
+    const numPattern = /^[a-zA-Z0-9\-]+$/;
+    if (!numPattern.test(invoiceNumber)) { highlight('invoiceNumber'); return; }
+    if (!numPattern.test(vendorNumber))  { highlight('vendorNumber');  return; }
+
+    // Show loading state on button
+    const btn = document.getElementById('submitBtn');
+    btn.textContent = 'Submitting…';
+    btn.disabled = true;
+
+    try {
+      // Send data to Google Sheet
+      const formData = new FormData();
+      formData.append('invoiceType',   invoiceType);
+      formData.append('invoiceNumber', invoiceNumber);
+      formData.append('invoiceDate',   invoiceDate);
+      formData.append('vendorNumber',  vendorNumber);
+      formData.append('poNumber',      poNumber);
+
+      await fetch(SHEET_URL, { method: 'POST', body: formData });
+
+      // Show success
+      document.getElementById('form-section').style.display = 'none';
+      const s = document.getElementById('successSection');
+      s.style.display = 'flex';
+      document.getElementById('successId').textContent =
+        'REF: ' + invoiceNumber.toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
+
+    } catch (err) {
+      btn.textContent = 'Submit Invoice →';
+      btn.disabled = false;
+      alert('Something went wrong. Please try again.');
+      console.error(err);
+    }
+  }
+
+  function highlight(id) {
+    const el = document.getElementById(id);
+    el.style.borderColor = '#f472b6';
+    el.style.boxShadow = '0 0 0 3px rgba(244,114,182,0.25)';
+    el.focus();
+    setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 1800);
+  }
+
+  function shakeMissing(ids) {
+    ids.forEach(id => {
+      const el = document.getElementById(id);
+      el.style.borderColor = '#f472b6';
+      el.style.animation = 'shake 0.4s ease';
+      setTimeout(() => { el.style.borderColor = ''; el.style.animation = ''; }, 700);
+    });
+    if (ids[0]) document.getElementById(ids[0]).focus();
+  }
+
+  /* Shake keyframes injected */
+  const style = document.createElement('style');
+  style.textContent = `
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%      { transform: translateX(-6px); }
+      40%      { transform: translateX(6px); }
+      60%      { transform: translateX(-4px); }
+      80%      { transform: translateX(4px); }
+    }
+  `;
+  document.head.appendChild(style);
+</script>
 </body>
 </html>
