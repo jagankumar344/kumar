@@ -254,7 +254,6 @@ footer span{color:var(--cyan);}
     <div class="section-label">04 // Certifications</div>
     <h2 class="section-title">Verified<br/><em>Expertise</em></h2>
     <div class="cert-grid">
-      <!-- NEW: Claude Code in Action -->
       <div class="cert-card reveal">
         <div class="cert-badge">🤖</div>
         <div class="cert-title">Claude Code in Action</div>
@@ -326,6 +325,30 @@ document.querySelectorAll('a,button,.contact-card,.tl-card,.skill-category,.cert
 const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:.12});
 document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
 document.querySelectorAll('.skills-grid .skill-category,.cert-grid .cert-card,.edu-grid .edu-card').forEach((el,i)=>{el.style.transitionDelay=(i*0.08)+'s';});
+</script>
+
+<!-- Yellow.ai Chatbot Deployment Plugin Script -->
+<script type="text/javascript">
+  window.ymConfig = {"bot":"x1775994282287","host":"https://r0.cloud.yellow.ai"};
+  (function() {
+      var w = window,
+          ic = w.YellowMessenger;
+      if ("function" === typeof ic) ic("reattach_activator"), ic("update", ymConfig);
+      else {
+          var d = document,
+              i = function() {
+                  i.c(arguments)
+              };
+          function l() {
+              var e = d.createElement("script");
+              e.type = "text/javascript", e.async = !0, e.src = "https://cdn.yellowmessenger.com/plugin/widget-v2/latest/dist/main.min.js";
+              var t = d.getElementsByTagName("script")[0];
+              t.parentNode.insertBefore(e, t)
+          }
+          i.q = [], i.c = function(e) {
+              i.q.push(e)
+          }, w.YellowMessenger = i, w.attachEvent ? w.attachEvent("onload", l) : w.addEventListener("load", l, !1)}
+  })();
 </script>
 </body>
 </html>
