@@ -12,6 +12,50 @@ html{scroll-behavior:smooth;}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden;cursor:none;}
 .cursor{position:fixed;width:12px;height:12px;background:var(--cyan);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:width .2s,height .2s,background .2s;mix-blend-mode:screen;}
 .cursor-ring{position:fixed;width:36px;height:36px;border:1px solid rgba(0,212,255,0.5);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:all .12s ease;}
+
+/* ---------- PAGE LOADER ---------- */
+#page-loader{
+  position:fixed;inset:0;z-index:10000;background:radial-gradient(circle at 50% 40%,#071328 0%,#020815 70%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity .8s ease, transform .9s cubic-bezier(.76,0,.24,1);
+}
+#page-loader.hide{opacity:0;transform:translateY(-6%);pointer-events:none;}
+.loader-stars{position:absolute;inset:0;opacity:.5;pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 15% 25%, #cfe9ff, transparent),
+    radial-gradient(1px 1px at 75% 15%, #cfe9ff, transparent),
+    radial-gradient(1px 1px at 35% 70%, #cfe9ff, transparent),
+    radial-gradient(1px 1px at 85% 65%, #cfe9ff, transparent),
+    radial-gradient(1px 1px at 55% 40%, #cfe9ff, transparent),
+    radial-gradient(1px 1px at 10% 85%, #cfe9ff, transparent),
+    radial-gradient(1px 1px at 92% 35%, #cfe9ff, transparent);
+}
+.loader-tag{
+  font-family:'Orbitron',monospace;font-size:11px;letter-spacing:.22em;color:var(--cyan);
+  margin-bottom:34px;display:flex;align-items:center;gap:10px;
+}
+.loader-tag-dot{width:6px;height:6px;background:var(--cyan2);border-radius:50%;animation:blink 1.2s infinite;}
+.loader-track{position:relative;width:min(480px,78vw);height:80px;}
+.loader-line{position:absolute;top:50%;left:0;right:0;height:1px;transform:translateY(-50%);
+  background:repeating-linear-gradient(90deg, rgba(0,212,255,.35) 0 10px, transparent 10px 22px);}
+.loader-ship{
+  position:absolute;top:50%;left:-60px;font-size:30px;transform:translateY(-50%);
+  animation:loader-fly 2.6s cubic-bezier(.65,.05,.36,1) forwards;
+  filter:drop-shadow(0 0 10px var(--cyan)) drop-shadow(0 0 22px rgba(0,212,255,.5));
+}
+@keyframes loader-fly{
+  0%{left:-60px; transform:translateY(-50%) rotate(0deg);}
+  48%{transform:translateY(-58%) rotate(-2deg);}
+  100%{left:104%; transform:translateY(-50%) rotate(0deg);}
+}
+.loader-progress-wrap{margin-top:38px;width:260px;height:2px;background:rgba(0,212,255,.15);border-radius:2px;overflow:hidden;}
+.loader-progress-bar{height:100%;width:0%;background:linear-gradient(90deg,var(--cyan),var(--orange));animation:loader-fill 2.6s cubic-bezier(.65,.05,.36,1) forwards;}
+@keyframes loader-fill{to{width:100%;}}
+.loader-status{margin-top:16px;font-family:'Orbitron',monospace;font-size:10px;letter-spacing:.18em;color:var(--muted);}
+@media (prefers-reduced-motion: reduce){
+  .loader-ship,.loader-progress-bar{animation-duration:.01ms !important;animation-iteration-count:1 !important;}
+}
+
 #space-canvas{position:fixed;inset:0;z-index:0;}
 .ship{position:fixed;font-size:22px;z-index:2;pointer-events:none;animation:ship-fly 22s linear infinite;filter:drop-shadow(0 0 8px var(--cyan));}
 .ship2{animation-duration:30s;animation-delay:-12s;font-size:16px;}
@@ -146,6 +190,19 @@ footer span{color:var(--cyan);}
 </style>
 </head>
 <body>
+
+<!-- PAGE LOADER -->
+<div id="page-loader">
+  <div class="loader-stars"></div>
+  <div class="loader-tag"><span class="loader-tag-dot"></span>INITIALIZING SYSTEMS</div>
+  <div class="loader-track">
+    <div class="loader-line"></div>
+    <div class="loader-ship">🚀</div>
+  </div>
+  <div class="loader-progress-wrap"><div class="loader-progress-bar"></div></div>
+  <div class="loader-status">LAUNCHING PORTFOLIO&hellip;</div>
+</div>
+
 <div class="cursor" id="cursor"></div>
 <div class="cursor-ring" id="cursorRing"></div>
 <canvas id="space-canvas"></canvas>
@@ -311,6 +368,15 @@ footer span{color:var(--cyan);}
 <footer><p>Designed &amp; Built by <span>Jagankumar T</span> · Conversational AI Developer · 2026</p></footer>
 
 <script>
+// Page loader sequence
+window.addEventListener('load', () => {
+  setTimeout(() => {
+    const loader = document.getElementById('page-loader');
+    loader.classList.add('hide');
+    setTimeout(() => { loader.remove(); }, 900);
+  }, 2600);
+});
+
 const canvas=document.getElementById('space-canvas'),ctx=canvas.getContext('2d');let W,H,stars=[];
 function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
 resize();window.addEventListener('resize',resize);
