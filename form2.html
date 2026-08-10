@@ -1,532 +1,488 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Invoice Portal</title>
-  <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;800&display=swap" rel="stylesheet"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JK PDF Editor - Complete PDF Toolkit</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- PDF Processing Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  </script>
+
+  <!-- Document Parsing & Office Libraries -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+
+  <!-- Icons & UI Helpers -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    :root {
-      --bg: #050510;
-      --card: rgba(12, 12, 35, 0.82);
-      --border: rgba(120, 80, 255, 0.35);
-      --accent: #7c3aed;
-      --accent2: #06b6d4;
-      --accent3: #f472b6;
-      --text: #e2e8f0;
-      --muted: #94a3b8;
-      --input-bg: rgba(255,255,255,0.04);
-      --input-border: rgba(124, 58, 237, 0.3);
-      --radius: 14px;
-    }
-
-    body {
-      font-family: 'Syne', sans-serif;
-      background: var(--bg);
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-      position: relative;
-    }
-
-    /* ── ANIMATED BACKGROUND ── */
-    .bg-canvas {
-      position: fixed;
-      inset: 0;
-      z-index: 0;
-      overflow: hidden;
-    }
-
-    /* Animated mesh blobs */
-    .blob {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      opacity: 0.55;
-      animation: drift 12s ease-in-out infinite alternate;
-    }
-    .blob-1 { width: 520px; height: 520px; background: #7c3aed; top: -10%; left: -8%; animation-duration: 14s; }
-    .blob-2 { width: 400px; height: 400px; background: #06b6d4; bottom: -5%; right: -6%; animation-duration: 11s; animation-delay: -4s; }
-    .blob-3 { width: 300px; height: 300px; background: #f472b6; top: 40%; left: 55%; animation-duration: 9s; animation-delay: -7s; }
-    .blob-4 { width: 200px; height: 200px; background: #10b981; bottom: 15%; left: 20%; animation-duration: 16s; animation-delay: -2s; }
-
-    @keyframes drift {
-      0%   { transform: translate(0, 0) scale(1); }
-      33%  { transform: translate(40px, -30px) scale(1.08); }
-      66%  { transform: translate(-25px, 45px) scale(0.95); }
-      100% { transform: translate(20px, 15px) scale(1.04); }
-    }
-
-    /* Floating particles */
-    .particles { position: absolute; inset: 0; }
-    .particle {
-      position: absolute;
-      width: 3px; height: 3px;
-      background: rgba(255,255,255,0.6);
-      border-radius: 50%;
-      animation: float-up linear infinite;
-    }
-    @keyframes float-up {
-      0%   { transform: translateY(100vh) scale(0); opacity: 0; }
-      10%  { opacity: 1; }
-      90%  { opacity: 0.5; }
-      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
-    }
-
-    /* Scanline overlay */
-    .scanlines {
-      position: fixed; inset: 0; z-index: 1; pointer-events: none;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 3px,
-        rgba(0,0,0,0.07) 3px,
-        rgba(0,0,0,0.07) 4px
-      );
-    }
-
-    /* Grid pattern */
-    .grid-overlay {
-      position: fixed; inset: 0; z-index: 0; pointer-events: none;
-      background-image:
-        linear-gradient(rgba(124,58,237,0.07) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(124,58,237,0.07) 1px, transparent 1px);
-      background-size: 40px 40px;
-    }
-
-    /* ── CARD ── */
-    .card-wrap {
-      position: relative; z-index: 10;
-      width: 100%; max-width: 420px;
-      padding: 16px;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 36px 32px 32px;
-      backdrop-filter: blur(24px);
-      -webkit-backdrop-filter: blur(24px);
-      box-shadow:
-        0 0 0 1px rgba(124,58,237,0.12),
-        0 24px 64px rgba(0,0,0,0.55),
-        inset 0 1px 0 rgba(255,255,255,0.06);
-      animation: card-in 0.7s cubic-bezier(0.22,1,0.36,1) both;
-    }
-
-    @keyframes card-in {
-      from { opacity: 0; transform: translateY(28px) scale(0.97); }
-      to   { opacity: 1; transform: translateY(0) scale(1); }
-    }
-
-    /* Glowing top border */
-    .card::before {
-      content: '';
-      position: absolute;
-      top: -1px; left: 20%; right: 20%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, #7c3aed, #06b6d4, #f472b6, transparent);
-      border-radius: 2px;
-      animation: shimmer 3s ease infinite;
-    }
-    @keyframes shimmer {
-      0%,100% { opacity: 0.7; }
-      50%      { opacity: 1; }
-    }
-
-    /* Header */
-    .header { margin-bottom: 28px; }
-    .badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(124,58,237,0.18);
-      border: 1px solid rgba(124,58,237,0.4);
-      color: #a78bfa;
-      font-family: 'Space Mono', monospace;
-      font-size: 10px; letter-spacing: 0.12em;
-      padding: 4px 10px; border-radius: 20px;
-      margin-bottom: 12px;
-    }
-    .badge-dot {
-      width: 6px; height: 6px;
-      background: #7c3aed; border-radius: 50%;
-      animation: pulse-dot 1.6s ease infinite;
-    }
-    @keyframes pulse-dot {
-      0%,100% { opacity: 1; transform: scale(1); }
-      50%      { opacity: 0.4; transform: scale(0.7); }
-    }
-
-    h1 {
-      font-family: 'Syne', sans-serif;
-      font-size: 26px; font-weight: 800;
-      color: var(--text);
-      line-height: 1.15;
-      letter-spacing: -0.02em;
-    }
-    h1 span {
-      background: linear-gradient(120deg, #a78bfa, #67e8f9, #f9a8d4);
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .subtitle {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px; color: var(--muted);
-      margin-top: 6px; letter-spacing: 0.04em;
-    }
-
-    /* ── FORM ── */
-    .form-grid { display: flex; flex-direction: column; gap: 16px; }
-
-    .field { display: flex; flex-direction: column; gap: 6px; }
-
-    label {
-      font-size: 11px; font-weight: 600;
-      color: var(--muted); letter-spacing: 0.08em;
-      text-transform: uppercase;
-      display: flex; align-items: center; gap: 6px;
-    }
-    label .req { color: var(--accent3); font-size: 13px; }
-    label .opt {
-      font-size: 9px; color: rgba(148,163,184,0.55);
-      background: rgba(255,255,255,0.05);
-      padding: 1px 6px; border-radius: 10px;
-      font-weight: 400; letter-spacing: 0;
-    }
-
-    input, select {
-      background: var(--input-bg);
-      border: 1px solid var(--input-border);
-      border-radius: 10px;
-      padding: 11px 14px;
-      font-family: 'Space Mono', monospace;
-      font-size: 13px; color: var(--text);
-      width: 100%; outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
-      appearance: none; -webkit-appearance: none;
-    }
-    input::placeholder { color: rgba(148,163,184,0.4); }
-    input:focus, select:focus {
-      border-color: var(--accent);
-      background: rgba(124,58,237,0.08);
-      box-shadow: 0 0 0 3px rgba(124,58,237,0.18), 0 0 20px rgba(124,58,237,0.12);
-    }
-    input[type="date"]::-webkit-calendar-picker-indicator {
-      filter: invert(0.6) sepia(1) saturate(5) hue-rotate(220deg);
-      cursor: pointer;
-    }
-
-    /* Custom select wrapper */
-    .select-wrap { position: relative; }
-    .select-wrap select { padding-right: 38px; cursor: pointer; }
-    .select-wrap::after {
-      content: '▾';
-      position: absolute; right: 13px; top: 50%;
-      transform: translateY(-50%);
-      color: var(--accent); font-size: 14px;
-      pointer-events: none;
-    }
-    select option { background: #0f0f2e; color: var(--text); }
-
-    /* Row for two fields */
-    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-
-    /* ── SUBMIT BUTTON ── */
-    .btn-wrap { margin-top: 8px; }
-    .submit-btn {
-      width: 100%; padding: 14px;
-      background: linear-gradient(135deg, #7c3aed 0%, #06b6d4 100%);
-      color: #fff; border: none; border-radius: 12px;
-      font-family: 'Syne', sans-serif;
-      font-size: 15px; font-weight: 700; letter-spacing: 0.04em;
-      cursor: pointer; position: relative; overflow: hidden;
-      transition: transform 0.15s, box-shadow 0.15s;
-      box-shadow: 0 4px 20px rgba(124,58,237,0.4);
-    }
-    .submit-btn::before {
-      content: '';
-      position: absolute; inset: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, transparent 60%);
-      border-radius: inherit;
-    }
-    .submit-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(124,58,237,0.55);
-    }
-    .submit-btn:active { transform: translateY(0); }
-
-    /* Ripple on click */
-    .submit-btn .ripple {
-      position: absolute; border-radius: 50%;
-      background: rgba(255,255,255,0.3);
-      transform: scale(0); animation: ripple 0.6s linear;
-      pointer-events: none;
-    }
-    @keyframes ripple {
-      to { transform: scale(4); opacity: 0; }
-    }
-
-    /* ── SUCCESS STATE ── */
-    .success {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      padding: 24px 0 8px;
-      text-align: center;
-    }
-    .success-icon {
-      width: 64px; height: 64px;
-      background: linear-gradient(135deg, #7c3aed, #06b6d4);
-      border-radius: 50%;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 28px;
-      box-shadow: 0 0 30px rgba(124,58,237,0.5);
-      animation: pop-in 0.5s cubic-bezier(0.34,1.56,0.64,1) both;
-    }
-    @keyframes pop-in {
-      from { transform: scale(0); opacity: 0; }
-      to   { transform: scale(1); opacity: 1; }
-    }
-    .success h2 {
-      font-size: 20px; font-weight: 800; color: var(--text);
-    }
-    .success p {
-      font-family: 'Space Mono', monospace;
-      font-size: 11px; color: var(--muted);
-    }
-    .success-id {
-      font-family: 'Space Mono', monospace;
-      font-size: 10px; color: #a78bfa;
-      background: rgba(124,58,237,0.12);
-      border: 1px solid rgba(124,58,237,0.25);
-      padding: 6px 14px; border-radius: 20px;
-      letter-spacing: 0.1em;
-    }
-
-    /* ── DIVIDER ── */
-    .divider {
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(124,58,237,0.3), transparent);
-      margin: 4px 0;
-    }
+    .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: #0f172a; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
   </style>
 </head>
-<body>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col">
 
-<!-- ANIMATED BACKGROUND -->
-<div class="bg-canvas">
-  <div class="blob blob-1"></div>
-  <div class="blob blob-2"></div>
-  <div class="blob blob-3"></div>
-  <div class="blob blob-4"></div>
-  <div class="particles" id="particles"></div>
-</div>
-<div class="grid-overlay"></div>
-<div class="scanlines"></div>
-
-<!-- CARD -->
-<div class="card-wrap">
-  <div class="card">
-    <div class="header">
-      <div class="badge">
-        <span class="badge-dot"></span>
-        INVOICE PORTAL
+  <!-- Header / Navigation -->
+  <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3 cursor-pointer" onclick="switchTool('home')">
+        <div class="bg-red-600 text-white p-2 rounded-xl font-bold text-xl flex items-center gap-1 shadow-lg shadow-red-900/40">
+          <i data-lucide="file-text" class="w-6 h-6"></i>
+          <span>JK</span>
+        </div>
+        <span class="text-xl font-bold tracking-tight text-white">PDF Editor</span>
       </div>
-      <h1>Submit Your<br/><span>Invoice</span></h1>
-      <p class="subtitle">// Fill all required fields to proceed</p>
+
+      <nav class="hidden lg:flex items-center gap-5 text-xs font-semibold text-slate-300 uppercase tracking-wider">
+        <button onclick="switchTool('editor')" class="text-red-400 hover:text-red-300 flex items-center gap-1">
+          <i data-lucide="edit-3" class="w-4 h-4"></i> Edit PDF
+        </button>
+        <button onclick="switchTool('merge')" class="hover:text-red-400">Merge</button>
+        <button onclick="switchTool('split')" class="hover:text-red-400">Split</button>
+        <button onclick="switchTool('compress')" class="hover:text-red-400">Compress</button>
+        <button onclick="switchTool('pdf2word')" class="hover:text-red-400">PDF to Word</button>
+        <button onclick="switchTool('protect')" class="hover:text-red-400">Protect</button>
+        <button onclick="switchTool('sign')" class="hover:text-red-400">Sign</button>
+      </nav>
+
+      <button onclick="switchTool('home')" class="bg-slate-700 hover:bg-slate-600 text-slate-200 px-3 py-1.5 rounded-lg text-sm transition-colors flex items-center gap-2">
+        <i data-lucide="grid" class="w-4 h-4"></i>
+        <span>All 25+ Tools</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8">
+
+    <!-- HOME PAGE: ALL TOOLS CATEGORIZED -->
+    <div id="view-home" class="space-y-10">
+      <div class="text-center max-w-3xl mx-auto space-y-3 my-4">
+        <h1 class="text-3xl sm:text-4xl font-extrabold text-white">Every tool you need to work with PDFs in one place</h1>
+        <p class="text-slate-400 text-sm sm:text-base">100% free, browser-based solution. Convert, edit, split, merge, compress, sign, protect, and OCR PDFs securely on your device.</p>
+      </div>
+
+      <!-- Category 1: Optimize & Edit -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-bold text-red-400 uppercase tracking-wider border-b border-slate-800 pb-2 flex items-center gap-2">
+          <i data-lucide="sliders" class="w-5 h-5"></i> Organize, Edit & Optimize
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="grid-optimize"></div>
+      </section>
+
+      <!-- Category 2: Convert to PDF -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-bold text-blue-400 uppercase tracking-wider border-b border-slate-800 pb-2 flex items-center gap-2">
+          <i data-lucide="file-plus" class="w-5 h-5"></i> Convert to PDF
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="grid-to-pdf"></div>
+      </section>
+
+      <!-- Category 3: Convert from PDF -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-bold text-emerald-400 uppercase tracking-wider border-b border-slate-800 pb-2 flex items-center gap-2">
+          <i data-lucide="file-output" class="w-5 h-5"></i> Convert from PDF
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="grid-from-pdf"></div>
+      </section>
+
+      <!-- Category 4: Security & Advanced -->
+      <section class="space-y-4">
+        <h2 class="text-lg font-bold text-purple-400 uppercase tracking-wider border-b border-slate-800 pb-2 flex items-center gap-2">
+          <i data-lucide="shield-check" class="w-5 h-5"></i> Security & Utilities
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4" id="grid-security"></div>
+      </section>
     </div>
 
-    <div class="divider"></div>
-
-    <div id="form-section">
-      <div class="form-grid" style="margin-top:20px;">
-
-        <!-- Invoice Type (SELECT) -->
-        <div class="field">
-          <label>Invoice Type <span class="req">*</span></label>
-          <div class="select-wrap">
-            <select id="invoiceType">
-              <option value="" disabled selected>Select type…</option>
-              <option value="standard">Standard Invoice</option>
-              <option value="proforma">Proforma Invoice</option>
-              <option value="credit">Credit Note</option>
-              <option value="debit">Debit Note</option>
-              <option value="recurring">Recurring Invoice</option>
-            </select>
+    <!-- WORKSPACE VIEW -->
+    <div id="view-workspace" class="hidden space-y-6">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+        <div class="flex items-center gap-3">
+          <button onclick="switchTool('home')" class="p-2 rounded-lg bg-slate-800 text-slate-400 hover:text-white transition-colors">
+            <i data-lucide="arrow-left" class="w-5 h-5"></i>
+          </button>
+          <div>
+            <h2 id="workspace-title" class="text-2xl font-bold text-white">Tool Name</h2>
+            <p id="workspace-desc" class="text-xs text-slate-400">Process files instantly inside your browser.</p>
           </div>
         </div>
-
-        <!-- Invoice Number + Date row -->
-        <div class="row">
-          <div class="field">
-            <label>Invoice No. <span class="req">*</span></label>
-            <input type="text" id="invoiceNumber" placeholder="INV-0001"/>
-          </div>
-          <div class="field">
-            <label>Date <span class="req">*</span></label>
-            <input type="date" id="invoiceDate"/>
-          </div>
-        </div>
-
-        <!-- Vendor Number -->
-        <div class="field">
-          <label>Vendor Number <span class="req">*</span></label>
-          <input type="text" id="vendorNumber" placeholder="VND-XXXXXX"/>
-        </div>
-
-        <!-- PO Number -->
-        <div class="field">
-          <label>PO Number <span class="opt">optional</span></label>
-          <input type="text" id="poNumber" placeholder="PO-XXXXXX"/>
-        </div>
-
-      </div>
-
-      <div class="btn-wrap" style="margin-top:24px;">
-        <button class="submit-btn" id="submitBtn">
-          Submit Invoice →
+        <button onclick="resetWorkspace()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-400 px-3 py-1.5 rounded-lg border border-slate-700">
+          Reset Area
         </button>
       </div>
+
+      <!-- Dropzone -->
+      <div id="dropzone" class="border-2 border-dashed border-slate-700 hover:border-red-500 bg-slate-800/40 rounded-2xl p-8 sm:p-12 text-center transition-all cursor-pointer">
+        <input type="file" id="fileInput" class="hidden" multiple>
+        <div class="space-y-4 pointer-events-none">
+          <div class="w-16 h-16 rounded-2xl bg-red-500/10 text-red-500 flex items-center justify-center mx-auto">
+            <i data-lucide="upload-cloud" class="w-8 h-8"></i>
+          </div>
+          <div>
+            <p id="dropzone-label" class="text-lg font-semibold text-white">Select files or drop them here</p>
+            <p class="text-xs text-slate-400 mt-1">Client-side processing • Files stay completely private</p>
+          </div>
+          <button type="button" class="bg-red-600 hover:bg-red-500 text-white font-medium px-5 py-2.5 rounded-xl text-sm shadow-lg shadow-red-900/30">
+            Choose Files
+          </button>
+        </div>
+      </div>
+
+      <!-- CANVAS EDITOR INTERFACE -->
+      <div id="editor-workspace" class="hidden space-y-4">
+        <div class="bg-slate-800 p-4 rounded-xl border border-slate-700 flex flex-wrap items-center justify-between gap-4">
+          <div class="flex items-center gap-2">
+            <button onclick="setEditMode('draw')" id="btn-draw" class="bg-red-600 text-white px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5">
+              <i data-lucide="pencil" class="w-4 h-4"></i> Draw
+            </button>
+            <button onclick="setEditMode('text')" id="btn-text" class="bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5">
+              <i data-lucide="type" class="w-4 h-4"></i> Text
+            </button>
+            <button onclick="clearCanvasEdits()" class="bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg text-sm flex items-center gap-1.5">
+              <i data-lucide="eraser" class="w-4 h-4"></i> Clear
+            </button>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <input type="color" id="editor-color" value="#dc2626" class="w-8 h-8 bg-transparent cursor-pointer">
+            <input type="range" id="editor-size" min="1" max="30" value="4" class="w-24 accent-red-600">
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="changePage(-1)" class="p-1.5 rounded bg-slate-700 hover:bg-slate-600"><i data-lucide="chevron-left" class="w-4 h-4"></i></button>
+            <span id="page-num-display" class="text-xs font-medium">Page 1 / 1</span>
+            <button onclick="changePage(1)" class="p-1.5 rounded bg-slate-700 hover:bg-slate-600"><i data-lucide="chevron-right" class="w-4 h-4"></i></button>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 flex justify-center items-center overflow-auto max-h-[70vh] custom-scrollbar">
+          <div id="canvas-wrapper" class="relative inline-block bg-white shadow-2xl">
+            <canvas id="pdf-render-canvas" class="block"></canvas>
+            <canvas id="pdf-draw-canvas" class="absolute top-0 left-0 cursor-crosshair"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- TOOL DYNAMIC CONTROLS -->
+      <div id="tool-controls" class="hidden bg-slate-800 p-6 rounded-2xl border border-slate-700 space-y-4">
+        
+        <!-- Protect / Password Control -->
+        <div id="control-protect" class="hidden space-y-2">
+          <label class="block text-xs text-slate-400">Set PDF Password</label>
+          <input type="password" id="protect-pass" placeholder="Enter password" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2.5 text-white">
+        </div>
+
+        <!-- Watermark Control -->
+        <div id="control-watermark" class="hidden grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Text</label>
+            <input type="text" id="watermark-text" value="CONFIDENTIAL" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Size</label>
+            <input type="number" id="watermark-size" value="48" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+          </div>
+          <div>
+            <label class="block text-xs text-slate-400 mb-1">Opacity</label>
+            <input type="number" id="watermark-opacity" step="0.1" value="0.4" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <button id="action-btn" onclick="executeToolAction()" class="w-full bg-red-600 hover:bg-red-500 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
+          <i data-lucide="play" class="w-5 h-5"></i>
+          <span>Process & Download</span>
+        </button>
+      </div>
+
+      <!-- Output Preview / Queue -->
+      <div id="preview-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4"></div>
+      <div id="output-log" class="hidden p-4 bg-slate-950 rounded-xl border border-slate-800 text-xs font-mono text-emerald-400 max-h-48 overflow-y-auto"></div>
     </div>
+  </main>
 
-    <!-- SUCCESS -->
-    <div class="success" id="successSection">
-      <div class="success-icon">✓</div>
-      <h2>Invoice Submitted!</h2>
-      <p>Your invoice has been received successfully.</p>
-      <div class="success-id" id="successId">REF: —</div>
+  <footer class="bg-slate-800 border-t border-slate-700 py-6 mt-auto">
+    <div class="max-w-7xl mx-auto px-4 text-center text-slate-400 text-sm">
+      <p>© 2026 JK PDF Editor. Full client-side PDF manipulation engine.</p>
     </div>
+  </footer>
 
-  </div>
-</div>
+  <script>
+    // Master Tool Configurations (iLovePDF Full Suite)
+    const TOOL_SUITE = [
+      // Optimize & Edit
+      { id: 'editor', name: 'Edit PDF', desc: 'Add signatures, text, drawings, and shapes.', cat: 'optimize', icon: 'edit-3', color: 'text-red-500' },
+      { id: 'merge', name: 'Merge PDF', desc: 'Combine multiple PDFs into one unified file.', cat: 'optimize', icon: 'merge', color: 'text-red-500' },
+      { id: 'split', name: 'Split PDF', desc: 'Extract pages or split into individual files.', cat: 'optimize', icon: 'split', color: 'text-red-500' },
+      { id: 'compress', name: 'Compress PDF', desc: 'Reduce file size while optimizing quality.', cat: 'optimize', icon: 'minimize-2', color: 'text-red-500' },
+      { id: 'organize', name: 'Organize Pages', desc: 'Sort, delete, or reorder PDF pages.', cat: 'optimize', icon: 'layers', color: 'text-red-500' },
+      { id: 'rotate', name: 'Rotate PDF', desc: 'Rotate orientation by 90, 180, or 270 degrees.', cat: 'optimize', icon: 'rotate-cw', color: 'text-red-500' },
 
-<script>
-  /* ── Particles ── */
-  const container = document.getElementById('particles');
-  for (let i = 0; i < 38; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    p.style.left = Math.random() * 100 + 'vw';
-    p.style.animationDuration = (6 + Math.random() * 14) + 's';
-    p.style.animationDelay = (-Math.random() * 18) + 's';
-    p.style.width = p.style.height = (Math.random() > 0.7 ? 4 : 2) + 'px';
-    p.style.opacity = 0.3 + Math.random() * 0.6;
-    container.appendChild(p);
-  }
+      // Convert to PDF
+      { id: 'word2pdf', name: 'Word to PDF', desc: 'Convert DOCX documents to styled PDF.', cat: 'to-pdf', icon: 'file-text', color: 'text-blue-400' },
+      { id: 'excel2pdf', name: 'Excel to PDF', desc: 'Convert XLSX spreadsheets into PDF tables.', cat: 'to-pdf', icon: 'sheet', color: 'text-blue-400' },
+      { id: 'img2pdf', name: 'JPG to PDF', desc: 'Turn JPG, PNG, and WebP images into PDF.', cat: 'to-pdf', icon: 'image', color: 'text-blue-400' },
+      { id: 'html2pdf', name: 'HTML to PDF', desc: 'Convert web page code directly into PDF.', cat: 'to-pdf', icon: 'code', color: 'text-blue-400' },
 
-  /* ── Ripple effect ── */
-  document.getElementById('submitBtn').addEventListener('click', function(e) {
-    const btn = this;
-    const circle = document.createElement('span');
-    const diameter = Math.max(btn.clientWidth, btn.clientHeight);
-    const radius = diameter / 2;
-    const rect = btn.getBoundingClientRect();
-    circle.style.width = circle.style.height = diameter + 'px';
-    circle.style.left = (e.clientX - rect.left - radius) + 'px';
-    circle.style.top  = (e.clientY - rect.top  - radius) + 'px';
-    circle.className = 'ripple';
-    btn.appendChild(circle);
-    setTimeout(() => circle.remove(), 650);
+      // Convert from PDF
+      { id: 'pdf2word', name: 'PDF to Word', desc: 'Extract PDF text directly into editable Word/TXT.', cat: 'from-pdf', icon: 'file-type-2', color: 'text-emerald-400' },
+      { id: 'pdf2jpg', name: 'PDF to JPG', desc: 'Extract every PDF page as high-res images.', cat: 'from-pdf', icon: 'file-image', color: 'text-emerald-400' },
+      { id: 'pdf2excel', name: 'PDF to Excel', desc: 'Extract table data from PDF into spreadsheets.', cat: 'from-pdf', icon: 'table', color: 'text-emerald-400' },
+      { id: 'ocr', name: 'OCR PDF', desc: 'Recognize scanned text from images using AI OCR.', cat: 'from-pdf', icon: 'scan-text', color: 'text-emerald-400' },
 
-    handleSubmit();
-  });
+      // Security & Utilities
+      { id: 'watermark', name: 'Watermark', desc: 'Stamp text or image watermarks onto pages.', cat: 'security', icon: 'stamp', color: 'text-purple-400' },
+      { id: 'pagenum', name: 'Page Numbers', desc: 'Add customizable headers and page counters.', cat: 'security', icon: 'hash', color: 'text-purple-400' },
+      { id: 'protect', name: 'Protect PDF', desc: 'Encrypt PDF files with secure passwords.', cat: 'security', icon: 'lock', color: 'text-purple-400' },
+      { id: 'unlock', name: 'Unlock PDF', desc: 'Remove password protection from unlocked files.', cat: 'security', icon: 'unlock', color: 'text-purple-400' },
+      { id: 'sign', name: 'Sign PDF', desc: 'Draw digital signatures and apply onto documents.', cat: 'security', icon: 'pen-tool', color: 'text-purple-400' }
+    ];
 
-  function sanitize(val) {
-    const d = document.createElement('div');
-    d.textContent = val;
-    return d.innerHTML;
-  }
+    let currentTool = 'home';
+    let uploadedFiles = [];
+    let currentPdfDoc = null;
+    let currentPageNum = 1;
+    let activeMode = 'draw';
+    let isDrawing = false;
 
-  const SHEET_URL = 'https://script.google.com/macros/s/AKfycbzj_PxPJWvUT101r8u04nUHgypqYHty4wPtpg5LN62p54A3SEHILF2gUKmPFy02KVw/exec';
+    // Render Grid Cards
+    function renderHomeGrid() {
+      TOOL_SUITE.forEach(tool => {
+        const grid = document.getElementById(`grid-${tool.cat}`);
+        if (!grid) return;
 
-  async function handleSubmit() {
-    const invoiceType   = sanitize(document.getElementById('invoiceType').value.trim());
-    const invoiceNumber = sanitize(document.getElementById('invoiceNumber').value.trim());
-    const invoiceDate   = sanitize(document.getElementById('invoiceDate').value.trim());
-    const vendorNumber  = sanitize(document.getElementById('vendorNumber').value.trim());
-    const poNumber      = sanitize(document.getElementById('poNumber').value.trim());
+        const card = document.createElement('div');
+        card.className = "bg-slate-800 hover:bg-slate-750 border border-slate-700/80 hover:border-red-500/50 p-5 rounded-2xl cursor-pointer transition-all hover:-translate-y-1 group shadow-lg";
+        card.onclick = () => switchTool(tool.id);
 
-    if (!invoiceType || !invoiceNumber || !invoiceDate || !vendorNumber) {
-      shakeMissing([
-        !invoiceType   && 'invoiceType',
-        !invoiceNumber && 'invoiceNumber',
-        !invoiceDate   && 'invoiceDate',
-        !vendorNumber  && 'vendorNumber',
-      ].filter(Boolean));
-      return;
+        card.innerHTML = `
+          <div class="w-10 h-10 rounded-xl bg-slate-900 ${tool.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+            <i data-lucide="${tool.icon}" class="w-5 h-5"></i>
+          </div>
+          <h3 class="text-sm font-bold text-white mb-1">${tool.name}</h3>
+          <p class="text-slate-400 text-xs">${tool.desc}</p>
+        `;
+        grid.appendChild(card);
+      });
+      lucide.createIcons();
     }
 
-    const numPattern = /^[a-zA-Z0-9\-]+$/;
-    if (!numPattern.test(invoiceNumber)) { highlight('invoiceNumber'); return; }
-    if (!numPattern.test(vendorNumber))  { highlight('vendorNumber');  return; }
+    function switchTool(toolId) {
+      currentTool = toolId;
+      resetWorkspace();
 
-    // Show loading state on button
-    const btn = document.getElementById('submitBtn');
-    btn.textContent = 'Submitting…';
-    btn.disabled = true;
+      const homeView = document.getElementById('view-home');
+      const workspaceView = document.getElementById('view-workspace');
 
-    try {
-      // Send data to Google Sheet
-      const formData = new FormData();
-      formData.append('invoiceType',   invoiceType);
-      formData.append('invoiceNumber', invoiceNumber);
-      formData.append('invoiceDate',   invoiceDate);
-      formData.append('vendorNumber',  vendorNumber);
-      formData.append('poNumber',      poNumber);
+      if (toolId === 'home') {
+        homeView.classList.remove('hidden');
+        workspaceView.classList.add('hidden');
+      } else {
+        homeView.classList.add('hidden');
+        workspaceView.classList.remove('hidden');
 
-      await fetch(SHEET_URL, { method: 'POST', body: formData });
-
-      // Show success
-      document.getElementById('form-section').style.display = 'none';
-      const s = document.getElementById('successSection');
-      s.style.display = 'flex';
-      document.getElementById('successId').textContent =
-        'REF: ' + invoiceNumber.toUpperCase() + '-' + Date.now().toString(36).toUpperCase();
-
-    } catch (err) {
-      btn.textContent = 'Submit Invoice →';
-      btn.disabled = false;
-      alert('Something went wrong. Please try again.');
-      console.error(err);
+        const tool = TOOL_SUITE.find(t => t.id === toolId);
+        document.getElementById('workspace-title').innerText = tool ? tool.name : 'PDF Tool';
+        document.getElementById('workspace-desc').innerText = tool ? tool.desc : '';
+      }
     }
-  }
 
-  function highlight(id) {
-    const el = document.getElementById(id);
-    el.style.borderColor = '#f472b6';
-    el.style.boxShadow = '0 0 0 3px rgba(244,114,182,0.25)';
-    el.focus();
-    setTimeout(() => { el.style.borderColor = ''; el.style.boxShadow = ''; }, 1800);
-  }
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
 
-  function shakeMissing(ids) {
-    ids.forEach(id => {
-      const el = document.getElementById(id);
-      el.style.borderColor = '#f472b6';
-      el.style.animation = 'shake 0.4s ease';
-      setTimeout(() => { el.style.borderColor = ''; el.style.animation = ''; }, 700);
-    });
-    if (ids[0]) document.getElementById(ids[0]).focus();
-  }
+    dropzone.onclick = () => fileInput.click();
+    fileInput.onchange = (e) => { if (e.target.files.length) handleFiles(Array.from(e.target.files)); };
 
-  /* Shake keyframes injected */
-  const style = document.createElement('style');
-  style.textContent = `
-    @keyframes shake {
-      0%,100% { transform: translateX(0); }
-      20%      { transform: translateX(-6px); }
-      40%      { transform: translateX(6px); }
-      60%      { transform: translateX(-4px); }
-      80%      { transform: translateX(4px); }
+    async function handleFiles(files) {
+      uploadedFiles.push(...files);
+      document.getElementById('tool-controls').classList.remove('hidden');
+      document.getElementById('control-protect').classList.toggle('hidden', currentTool !== 'protect');
+      document.getElementById('control-watermark').classList.toggle('hidden', currentTool !== 'watermark');
+
+      if (currentTool === 'editor' || currentTool === 'sign') {
+        document.getElementById('dropzone').classList.add('hidden');
+        document.getElementById('editor-workspace').classList.remove('hidden');
+        loadPdfIntoEditor(uploadedFiles[0]);
+      } else {
+        renderFileList();
+      }
     }
-  `;
-  document.head.appendChild(style);
-</script>
+
+    async function loadPdfIntoEditor(file) {
+      const buffer = await file.arrayBuffer();
+      currentPdfDoc = await pdfjsLib.getDocument({ data: buffer }).promise;
+      currentPageNum = 1;
+      renderEditorPage(currentPageNum);
+      setupCanvasEvents();
+    }
+
+    async function renderEditorPage(num) {
+      const page = await currentPdfDoc.getPage(num);
+      const viewport = page.getViewport({ scale: 1.2 });
+
+      const renderCanvas = document.getElementById('pdf-render-canvas');
+      const drawCanvas = document.getElementById('pdf-draw-canvas');
+
+      renderCanvas.height = viewport.height;
+      renderCanvas.width = viewport.width;
+      drawCanvas.height = viewport.height;
+      drawCanvas.width = viewport.width;
+
+      await page.render({ canvasContext: renderCanvas.getContext('2d'), viewport }).promise;
+      document.getElementById('page-num-display').innerText = `Page ${num} / ${currentPdfDoc.numPages}`;
+    }
+
+    function setupCanvasEvents() {
+      const canvas = document.getElementById('pdf-draw-canvas');
+      const ctx = canvas.getContext('2d');
+
+      canvas.onmousedown = (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+
+        if (activeMode === 'draw') {
+          isDrawing = true;
+          ctx.beginPath();
+          ctx.moveTo(x, y);
+          ctx.strokeStyle = document.getElementById('editor-color').value;
+          ctx.lineWidth = document.getElementById('editor-size').value;
+        } else if (activeMode === 'text') {
+          const txt = prompt("Enter text overlay:");
+          if (txt) {
+            ctx.fillStyle = document.getElementById('editor-color').value;
+            ctx.font = "20px sans-serif";
+            ctx.fillText(txt, x, y);
+          }
+        }
+      };
+
+      canvas.onmousemove = (e) => {
+        if (!isDrawing) return;
+        const rect = canvas.getBoundingClientRect();
+        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.stroke();
+      };
+
+      canvas.onmouseup = () => isDrawing = false;
+    }
+
+    function setEditMode(m) { activeMode = m; }
+    function changePage(d) {
+      if (currentPdfDoc && currentPageNum + d >= 1 && currentPageNum + d <= currentPdfDoc.numPages) {
+        currentPageNum += d;
+        renderEditorPage(currentPageNum);
+      }
+    }
+    function clearCanvasEdits() {
+      const c = document.getElementById('pdf-draw-canvas');
+      c.getContext('2d').clearRect(0, 0, c.width, c.height);
+    }
+
+    function renderFileList() {
+      const container = document.getElementById('preview-container');
+      container.innerHTML = '';
+      uploadedFiles.forEach((f, i) => {
+        const el = document.createElement('div');
+        el.className = "bg-slate-800 p-3 rounded-xl border border-slate-700 text-center relative";
+        el.innerHTML = `
+          <button onclick="uploadedFiles.splice(${i},1); renderFileList();" class="absolute top-1 right-1 text-red-400">✕</button>
+          <i data-lucide="file" class="w-6 h-6 mx-auto mb-1 text-red-500"></i>
+          <p class="text-xs truncate font-medium">${f.name}</p>
+        `;
+        container.appendChild(el);
+      });
+      lucide.createIcons();
+    }
+
+    async function executeToolAction() {
+      const { PDFDocument, rgb, degrees } = PDFLib;
+
+      if (currentTool === 'merge') {
+        const merged = await PDFDocument.create();
+        for (const file of uploadedFiles) {
+          const doc = await PDFDocument.load(await file.arrayBuffer());
+          const pages = await merged.copyPages(doc, doc.getPageIndices());
+          pages.forEach(p => merged.addPage(p));
+        }
+        download(await merged.save(), 'jk_merged.pdf');
+      } 
+      else if (currentTool === 'pdf2word') {
+        const file = uploadedFiles[0];
+        const doc = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+        let fullText = "";
+        for (let i = 1; i <= doc.numPages; i++) {
+          const page = await doc.getPage(i);
+          const content = await page.getTextContent();
+          fullText += content.items.map(item => item.str).join(' ') + "\n\n";
+        }
+        const blob = new Blob([fullText], { type: "text/plain" });
+        downloadBlob(blob, "jk_extracted_text.txt");
+      }
+      else if (currentTool === 'ocr') {
+        const log = document.getElementById('output-log');
+        log.classList.remove('hidden');
+        log.innerText = "Running OCR scan...";
+        const res = await Tesseract.recognize(uploadedFiles[0], 'eng');
+        log.innerText = res.data.text;
+      }
+      else if (currentTool === 'watermark') {
+        const doc = await PDFDocument.load(await uploadedFiles[0].arrayBuffer());
+        const txt = document.getElementById('watermark-text').value;
+        doc.getPages().forEach(p => {
+          p.drawText(txt, { x: 100, y: 300, size: 40, opacity: 0.3, rotate: degrees(45) });
+        });
+        download(await doc.save(), 'jk_watermarked.pdf');
+      }
+      else if (currentTool === 'editor' || currentTool === 'sign') {
+        const rC = document.getElementById('pdf-render-canvas');
+        const dC = document.getElementById('pdf-draw-canvas');
+        const finalC = document.createElement('canvas');
+        finalC.width = rC.width; finalC.height = rC.height;
+        const ctx = finalC.getContext('2d');
+        ctx.drawImage(rC, 0, 0); ctx.drawImage(dC, 0, 0);
+
+        const pdfDoc = await PDFDocument.create();
+        const img = await pdfDoc.embedPng(finalC.toDataURL('image/png'));
+        const page = pdfDoc.addPage([img.width, img.height]);
+        page.drawImage(img, { x: 0, y: 0, width: img.width, height: img.height });
+        download(await pdfDoc.save(), 'jk_edited.pdf');
+      }
+    }
+
+    function resetWorkspace() {
+      uploadedFiles = [];
+      document.getElementById('preview-container').innerHTML = '';
+      document.getElementById('tool-controls').classList.add('hidden');
+      document.getElementById('editor-workspace').classList.add('hidden');
+      document.getElementById('dropzone').classList.remove('hidden');
+      document.getElementById('output-log').classList.add('hidden');
+    }
+
+    function download(bytes, name) {
+      const blob = new Blob([bytes], { type: "application/pdf" });
+      downloadBlob(blob, name);
+    }
+
+    function downloadBlob(blob, name) {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = name;
+      a.click();
+    }
+
+    // Initialize UI
+    window.onload = () => { renderHomeGrid(); };
+  </script>
 </body>
 </html>
